@@ -8,7 +8,7 @@ interface GlassCardProps {
     hoverEffect?: boolean;
 }
 
-export const GlassCard = ({ children, className, hoverEffect = false }: GlassCardProps) => {
+export const GlassCard = ({ children, className, hoverEffect = true }: GlassCardProps) => {
     return (
         <motion.div
             whileHover={hoverEffect ? { scale: 1.02, boxShadow: "0 0 20px rgba(188, 19, 254, 0.3)" } : {}}
