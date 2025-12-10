@@ -1,8 +1,10 @@
+
 import { useState } from "react";
 import { AuthLayout } from "../../layouts/AuthLayout";
 import { AnimatedInput } from "../../../components/shared/AnimatedInput";
 import { NeonButton } from "../../../components/shared/NeonButton";
-import { Link, useBlocker } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useDirtyBlocker } from "@/components/shared/useDirtyBlocker";
 
 export const AdminLoginPage = () => {
     const [email, setEmail] = useState("");
@@ -12,11 +14,7 @@ export const AdminLoginPage = () => {
 
     const isDirty = email.length > 0 || password.length > 0;
 
-    // Prevent navigation if form is dirty
-    useBlocker(
-        ({ currentLocation, nextLocation }) =>
-            isDirty && currentLocation.pathname !== nextLocation.pathname && !window.confirm("You have unsaved changes. Are you sure you want to leave?")
-    );
+    useDirtyBlocker(isDirty);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
