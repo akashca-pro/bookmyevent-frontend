@@ -22,7 +22,7 @@ export const SignupSchema = z.object({
         .string()
         .min(2, 'First name must be at least 2 characters')
         .max(50, 'First name must be at most 50 characters')
-        .regex(/^[a-zA-Z\s]+$/, 'First name must contain only letters'), // Added \s to allow spaces in name
+        .regex(/^[a-zA-Z\s]+$/, 'First name must contain only letters'),
 
     email: z
         .email('Invalid email address')
@@ -36,7 +36,7 @@ export const SignupSchema = z.object({
         .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
         .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
         .regex(/[0-9]/, 'Password must contain at least one number')
-        .regex(/[@$!%*?&#]/, 'Password must contain at least one special character'), // Matches user request regex
+        .regex(/[@$!%*?&#]/, 'Password must contain at least one special character'),
 });
 
 export type LoginCredentials = z.infer<typeof LoginSchema>;

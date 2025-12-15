@@ -13,15 +13,15 @@ export async function apiClient<T>(endpoint: string, { data, ...customConfig }: 
             ...customConfig.headers,
         } as HeadersInit,
         ...customConfig,
-        credentials: 'include', // Always include cookies
+        credentials: 'include',
     };
 
     if (config.body && customConfig.method && customConfig.method !== 'POST') {
-        // Respect method if provided
+
         config.method = customConfig.method;
     }
 
-    // Clean headers if undefined
+
     if (config.headers) {
         const headers = config.headers as Record<string, string | undefined>;
         Object.keys(headers).forEach(key => headers[key] === undefined && delete headers[key]);
@@ -31,8 +31,7 @@ export async function apiClient<T>(endpoint: string, { data, ...customConfig }: 
     const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
     if (response.status === 401) {
-        // Optional: Handle 401 global logout or refresh logic here if not handled by interceptors/components
-        // throwing specific error helpful for React Query
+
     }
 
     const responseData = await response.json().catch(() => ({}));

@@ -13,7 +13,6 @@ export const BookingCard = ({ booking }: BookingCardProps) => {
     const { title, description, thumbnail } = serviceDetails;
     const { startDate, endDate, totalPrice, status } = bookingDetails;
 
-    // Determine status color
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
             case "confirmed":
@@ -80,7 +79,7 @@ export const BookingCard = ({ booking }: BookingCardProps) => {
                     <DollarSign className="w-4 h-4 mr-1" />
                     {totalPrice.toLocaleString()}
                 </div>
-                {/* Could add action buttons here like 'Cancel' or 'View Details' */}
+
             </CardFooter>
         </Card>
     );

@@ -21,14 +21,14 @@ export const SignupPage = () => {
 
     const isDirty = name.length > 0 || email.length > 0 || password.length > 0;
 
-    // Prevent navigation if form is dirty
+
     useDirtyBlocker(isDirty);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrors({});
 
-        // Client-side validation using Zod schema
+
         const result = SignupSchema.safeParse({ name, email, password });
         if (!result.success) {
             const fieldErrors: typeof errors = {};
@@ -48,7 +48,7 @@ export const SignupPage = () => {
             if (response.success) {
                 dispatch(loginSuccess(response.data));
                 toast.success(response.message || "Account created successfully!");
-                navigate("/"); // Redirect to home/dashboard
+                navigate("/");
             }
         } catch (error: any) {
             console.error("Signup error:", error);

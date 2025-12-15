@@ -13,7 +13,7 @@ export const GetBookingsQuerySchema = z.object({
     skip: z.coerce
         .number()
         .int()
-        .optional(), // Made optional as it's often derived from page/limit, but keeping strict if passed
+        .optional(),
     sort: z
         .string()
         .trim()
@@ -23,7 +23,7 @@ export const GetBookingsQuerySchema = z.object({
 export type GetBookingsParams = z.infer<typeof GetBookingsQuerySchema>;
 
 export interface BookingDetails {
-    startDate: string; // Date comes as string from JSON
+    startDate: string;
     endDate: string;
     totalPrice: number;
     status: string;
