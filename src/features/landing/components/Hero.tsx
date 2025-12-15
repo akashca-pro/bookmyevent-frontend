@@ -41,7 +41,7 @@ export const Hero = () => {
                                 Get Started <ArrowRight className="ml-2 w-5 h-5" />
                             </NeonButton>
                         </Link>
-                        <Link to="/login">
+                        <Link to="/explore">
                             <NeonButton variant="secondary" className="h-12 px-8 text-lg">
                                 Explore Services
                             </NeonButton>

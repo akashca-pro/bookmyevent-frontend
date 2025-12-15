@@ -4,6 +4,7 @@ import { LandingPage } from "./features/landing/pages/LandingPage";
 import { LoginPage } from "./features/auth/login/LoginPage";
 import { SignupPage } from "./features/auth/signup/SignupPage";
 import { AdminLoginPage } from "./features/auth/admin-login/AdminLoginPage";
+import ExplorePage from "./features/explore/components/ExplorePage";
 
 export const router = createBrowserRouter([
     {
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
             {
                 path: "admin/login",
                 element: <AdminLoginPage />,
+            },
+            {
+                path: "explore",
+                element: <ExplorePage />,
             },
         ],
     },
