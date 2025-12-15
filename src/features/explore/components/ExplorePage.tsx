@@ -2,9 +2,9 @@ import { useSearchParams } from "react-router-dom";
 import { ServiceFilters } from "./ServiceFilters";
 import { ServiceGrid } from "./ServiceGrid";
 import { PaginationControls } from "./PaginationControls";
-import type { GetAvailableServicesQuery } from "../types";
+import type { GetAvailableServicesQuery } from "../api/explore";
 import { useMemo } from "react";
-import { useGetAvailableServicesQuery } from "@/apis/explore/hooks";
+import { useAvailableServices } from "../hooks/useAvailableServices";
 
 export default function ExplorePage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -35,7 +35,7 @@ export default function ExplorePage() {
         data,
         isLoading,
         error,
-    } = useGetAvailableServicesQuery(filters);
+    } = useAvailableServices(filters);
 
 
     const handleFilterChange = (newFilters: Partial<GetAvailableServicesQuery>) => {

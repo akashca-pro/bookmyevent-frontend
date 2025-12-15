@@ -40,11 +40,20 @@ export const Navbar = () => {
     const isAdmin = userRole === 'admin';
 
     useEffect(() => {
+        let timeoutId: ReturnType<typeof setTimeout>;
+
         const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                setScrolled(window.scrollY > 20);
+            }, 10); // Small delay for performance
         };
+
         window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            clearTimeout(timeoutId);
+        };
     }, []);
 
     const handleLogout = async () => {

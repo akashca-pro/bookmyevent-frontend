@@ -1,4 +1,4 @@
-import { apiClient } from "@/apis/http";
+import { apiClient } from "@/lib/http";
 import { z } from "zod";
 
 export const LoginSchema = z.object({
@@ -65,22 +65,19 @@ export interface ProfileResponseDTO {
 
 export const adminLogin = async (credentials: LoginCredentials): Promise<AuthResponse> => {
     return apiClient<AuthResponse>('/auth/admin/login', {
-        method: 'POST',
-        body: JSON.stringify(credentials),
+        data: credentials,
     });
 };
 
 export const userLogin = async (credentials: LoginCredentials): Promise<AuthResponse> => {
     return apiClient<AuthResponse>('/auth/user/login', {
-        method: 'POST',
-        body: JSON.stringify(credentials),
+        data: credentials,
     });
 };
 
 export const signup = async (credentials: SignupCredentials): Promise<AuthResponse> => {
     return apiClient<AuthResponse>('/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify(credentials),
+        data: credentials,
     });
 };
 

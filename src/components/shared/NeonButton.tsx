@@ -15,7 +15,6 @@ export const NeonButton = ({
     className,
     variant = "primary",
     isLoading,
-    glow = true,
     disabled,
     ...props
 }: NeonButtonProps) => {

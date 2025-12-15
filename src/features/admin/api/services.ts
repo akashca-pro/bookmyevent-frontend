@@ -1,4 +1,4 @@
-import { apiClient } from "@/apis/http";
+import { apiClient } from "@/lib/http";
 import type {
     Service,
     PaginationDTO,
@@ -34,16 +34,15 @@ export const fetchServiceMetrics = async (): Promise<ServiceMetrics> => {
 };
 
 export const createService = async (data: CreateServiceFuncArgs): Promise<Service> => {
-    return apiClient<Service>(`${BASE_PATH}/create`, { // Updated endpoint as per request
-        method: "POST",
-        body: JSON.stringify(data),
+    return apiClient<Service>(`${BASE_PATH}/create`, {
+        data,
     });
 };
 
 export const updateService = async (id: string, data: UpdateServiceFuncArgs): Promise<Service> => {
     return apiClient<Service>(`${BASE_PATH}/${id}`, {
         method: "PATCH",
-        body: JSON.stringify(data),
+        data,
     });
 };
 

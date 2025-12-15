@@ -1,4 +1,4 @@
-import { apiClient } from "@/apis/http";
+import { apiClient } from "@/lib/http";
 import type { BookingsResponseDTO, GetBookingsParams } from "../types";
 
 const BASE_PATH = "/bookings";

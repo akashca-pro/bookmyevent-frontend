@@ -25,7 +25,7 @@ export const RootLayout = () => {
                     if (response.success && response.data) {
                         dispatch(loginSuccess(response.data));
                     }
-                } catch (error) {
+                } catch {
                     dispatch(logout());
                 } finally {
                     setIsChecking(false);

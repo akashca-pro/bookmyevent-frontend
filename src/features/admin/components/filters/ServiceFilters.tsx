@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { useSearchParams } from "react-router-dom";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { X } from "lucide-react";
 
 // Fallback if useDebounce doesn't exist in hooks
@@ -32,7 +32,7 @@ export function ServiceFilters() {
     const debouncedMinPrice = useDebounceValue(minPrice, 500);
     const debouncedMaxPrice = useDebounceValue(maxPrice, 500);
 
-    const updateParam = (key: string, value: string) => {
+    const updateParam = useCallback((key: string, value: string) => {
         setSearchParams(prev => {
             const next = new URLSearchParams(prev);
             if (value) {
@@ -44,11 +44,11 @@ export function ServiceFilters() {
             next.set("page", "1");
             return next;
         });
-    };
+    }, [setSearchParams]);
 
-    useEffect(() => updateParam("search", debouncedSearch), [debouncedSearch]);
-    useEffect(() => updateParam("minPrice", debouncedMinPrice), [debouncedMinPrice]);
-    useEffect(() => updateParam("maxPrice", debouncedMaxPrice), [debouncedMaxPrice]);
+    useEffect(() => updateParam("search", debouncedSearch), [debouncedSearch, updateParam]);
+    useEffect(() => updateParam("minPrice", debouncedMinPrice), [debouncedMinPrice, updateParam]);
+    useEffect(() => updateParam("maxPrice", debouncedMaxPrice), [debouncedMaxPrice, updateParam]);
 
     const handleClear = () => {
         setSearch("");
