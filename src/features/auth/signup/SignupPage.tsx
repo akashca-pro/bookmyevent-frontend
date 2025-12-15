@@ -1,9 +1,14 @@
+
 import { useState } from "react";
 import { AuthLayout } from "../../layouts/AuthLayout";
 import { AnimatedInput } from "../../../components/shared/AnimatedInput";
 import { NeonButton } from "../../../components/shared/NeonButton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDirtyBlocker } from "@/components/shared/useDirtyBlocker";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { loginSuccess } from "@/store/slices/auth.slice";
+import { signup, SignupSchema } from "../api/auth";
+import { toast } from "sonner";
 
 export const SignupPage = () => {
     const [name, setName] = useState("");
@@ -11,31 +16,54 @@ export const SignupPage = () => {
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
 
     const isDirty = name.length > 0 || email.length > 0 || password.length > 0;
 
     // Prevent navigation if form is dirty
     useDirtyBlocker(isDirty);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const newErrors: typeof errors = {};
-        if (!name) newErrors.name = "Full Name is required";
-        if (!email) newErrors.email = "Email is required";
-        if (!password) newErrors.password = "Password is required";
-        else if (password.length < 8) newErrors.password = "Password must be at least 8 characters";
+        setErrors({});
 
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
+        // Client-side validation using Zod schema
+        const result = SignupSchema.safeParse({ name, email, password });
+        if (!result.success) {
+            const fieldErrors: typeof errors = {};
+            result.error.issues.forEach(issue => {
+                if (issue.path[0] === 'name') fieldErrors.name = issue.message;
+                if (issue.path[0] === 'email') fieldErrors.email = issue.message;
+                if (issue.path[0] === 'password') fieldErrors.password = issue.message;
+            });
+            setErrors(fieldErrors);
             return;
         }
 
         setIsLoading(true);
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const response = await signup({ name, email, password });
+
+            if (response.success) {
+                dispatch(loginSuccess(response.data));
+                toast.success(response.message || "Account created successfully!");
+                navigate("/"); // Redirect to home/dashboard
+            }
+        } catch (error: any) {
+            console.error("Signup error:", error);
+            if (error.details && Array.isArray(error.details)) {
+                error.details.forEach((err: any) => {
+                    toast.error(err.message || "Validation Error", {
+                        description: `Field: ${err.field}`
+                    });
+                });
+            } else {
+                toast.error(error.message || "Signup failed");
+            }
+        } finally {
             setIsLoading(false);
-            alert("Signup successful (Simulated)");
-        }, 2000);
+        }
     };
 
     return (
@@ -88,3 +116,4 @@ export const SignupPage = () => {
         </AuthLayout>
     );
 };
+
