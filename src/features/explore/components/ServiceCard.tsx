@@ -1,6 +1,7 @@
 import type { GetAvailableServicesResponseDTO } from "../types";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { getCloudinaryUrl } from "@/utils/cloudinaryImageUrl";
 
 // I'll create a simple Badge inline or just use standard classes since I missed creating it.
 // I'll just use a styled span for now to ensure I don't break flow.
@@ -11,6 +12,8 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ service, index = 0 }: ServiceCardProps) {
+    const imageUrl = getCloudinaryUrl(service.thumbnail);
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -21,9 +24,9 @@ export function ServiceCard({ service, index = 0 }: ServiceCardProps) {
         >
             <Card className="h-full overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300 group">
                 <div className="relative aspect-[16/9] bg-muted overflow-hidden">
-                    {service.thumbnailUrl ? (
+                    {imageUrl ? (
                         <img
-                            src={service.thumbnailUrl}
+                            src={imageUrl}
                             alt={service.title}
                             className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
                             loading="lazy"

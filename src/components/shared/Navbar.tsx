@@ -96,20 +96,22 @@ export const Navbar = () => {
                     >
                         Explore
                     </Link>
-                    <Link
-                        to={isAdmin ? "/admin/dashboard" : "/dashboard"}
-                        className={cn(
-                            "text-sm font-medium transition-colors hover:text-white",
-                            [
-                                "/dashboard",
-                                "/admin/dashboard"
-                            ].includes(location.pathname)
-                                ? "text-neon-purple"
-                                : "text-gray-300"
-                        )}
-                    >
-                        Dashboard
-                    </Link>
+                    {isAuthenticated && (
+                        <Link
+                            to={isAdmin ? "/admin/dashboard" : "/dashboard"}
+                            className={cn(
+                                "text-sm font-medium transition-colors hover:text-white",
+                                [
+                                    "/dashboard",
+                                    "/admin/dashboard"
+                                ].includes(location.pathname)
+                                    ? "text-neon-purple"
+                                    : "text-gray-300"
+                            )}
+                        >
+                            Dashboard
+                        </Link>
+                    )}
                 </nav>
                 <div className="flex items-center gap-4">
                     {isAuthenticated && user ? (

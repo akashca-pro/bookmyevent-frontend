@@ -1,3 +1,4 @@
+import { getCloudinaryUrl } from "@/utils/cloudinaryImageUrl";
 import {
     Sheet,
     SheetContent,
@@ -25,6 +26,8 @@ export function ServiceDetailsSheet({ service, open, onOpenChange }: ServiceDeta
         toast.success(`${label} copied to clipboard`);
     };
 
+    const imageUrl = getCloudinaryUrl(service.thumbnail);
+
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent className="overflow-y-auto sm:max-w-md md:max-w-lg lg:max-w-xl">
@@ -45,14 +48,14 @@ export function ServiceDetailsSheet({ service, open, onOpenChange }: ServiceDeta
 
                 <div className="mt-6 space-y-6">
                     <div className="relative aspect-video bg-muted rounded-md overflow-hidden">
-                        {service.thumbnail ? (
-                            <img src={service.thumbnail} alt={service.title} className="object-cover w-full h-full" />
+                        {imageUrl ? (
+                            <img src={imageUrl} alt={service.title} className="object-cover w-full h-full" />
                         ) : (
                             <div className="flex items-center justify-center w-full h-full text-muted-foreground">
                                 No Thumbnail
                             </div>
                         )}
-                        <Badge className="absolute top-2 right-2">{service.category}</Badge>
+                        <Badge className=" absolute top-2 right-2">{service.category}</Badge>
                     </div>
 
                     <div>

@@ -60,15 +60,18 @@ export const useUpdateService = () => {
             toast.success("Service updated successfully");
         },
         onError: (error: any) => {
-            if (error.details && Array.isArray(error.details)) {
-                error.details.forEach((err: any) => {
-                    toast.error(err.message || "Validation Error", {
-                        description: `Field: ${err.field} `
-                    });
-                });
-            } else {
-                toast.error(`Failed to update service: ${error.message} `);
+            const apiErrors = error?.error
+
+            if (Array.isArray(apiErrors) && apiErrors.length > 0) {
+                apiErrors.forEach((e: any) => {
+                    toast.error(`field : ${e.field}`, {
+                        description: `Error : ${e.message}`,
+                    })
+                })
             }
+            toast.error('Error', {
+                description: error?.message
+            })
         },
     });
 };

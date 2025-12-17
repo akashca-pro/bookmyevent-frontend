@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/http";
+import type { ApiResponse } from "@/types/apiRes.type";
 import type {
     Service,
     PaginationDTO,
@@ -22,7 +23,8 @@ export const fetchServices = async (params: GetServicesParams): Promise<Paginati
     if (params.adminId) searchParams.set("adminId", params.adminId);
     if (params.sort) searchParams.set("sort", params.sort);
 
-    return apiClient<PaginationDTO<Service>>(`${BASE_PATH}?${searchParams.toString()}`);
+    const res = await apiClient<ApiResponse<PaginationDTO<Service>>>(`${BASE_PATH}?${searchParams.toString()}`);
+    return res.data;
 };
 
 export const getService = async (id: string): Promise<Service> => {
@@ -39,10 +41,41 @@ export const createService = async (data: CreateServiceFuncArgs): Promise<Servic
     });
 };
 
-export const updateService = async (id: string, data: UpdateServiceFuncArgs): Promise<Service> => {
-    return apiClient<Service>(`${BASE_PATH}/${id}`, {
+export const updateService = async (id: string, data: UpdateServiceFuncArgs & { thumbnail?: File }): Promise<Service> => {
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+        if (value instanceof Date) {
+            formData.append(key, value.toISOString());
+        } else if (value instanceof File) {
+            // File explicitly passed in data
+            formData.append(key, value);
+        } else if (typeof value === 'object' && value !== null) {
+            // Unpack nested objects like location and contact
+            Object.entries(value).forEach(([subKey, subValue]) => {
+                if (subValue !== undefined && subValue !== null) {
+                    formData.append(`${key}[${subKey}]`, String(subValue));
+                }
+            });
+        } else if (value !== undefined && value !== null) {
+            formData.append(key, value as any);
+        }
+    });
+
+    // Handle separate thumbnail if present
+    if (data.thumbnail && data.thumbnail instanceof File) {
+        // Already appended by loop if it was in 'data', but safety check
+        // if user passed it as separate arg (types intersection), we deal with it
+    }
+
+    // The user's backend log showed "thumbnail" field is expected. 
+    // The previous code had "data" including thumbnail? No, types intersection.
+    // The loop above iterates 'data' which is UpdateServiceFuncArgs & { thumbnail?: File }.
+    // So thumbnail is covered.
+
+    return apiClient<Service>(`${BASE_PATH}/${id}/update`, {
         method: "PATCH",
-        data,
+        body: formData,
     });
 };
 
@@ -55,18 +88,10 @@ export const deleteService = async (id: string): Promise<void> => {
 export const uploadThumbnail = async (id: string, file: File): Promise<{ url: string }> => {
     const formData = new FormData();
     formData.append("thumbnail", file);
-
-    // Initial implementation for file upload might need a specific client method that handles FormData
-    // checks existing http client capabilities or uses fetch directly if client implies JSON only
-    // Based on http.ts viewed earlier, it sets Content-Type: application/json automatically
-    // So we need to override it or use fetch directly for upload.
-    // I'll use fetch directly here to avoid issues with the generic client setting JSON headers.
-
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const res = await fetch(`${BASE_URL}${BASE_PATH}/${id}/thumbnail`, {
         method: "POST",
         body: formData,
-        // Don't set Content-Type header, let browser set it with boundary
         credentials: "include",
     });
 

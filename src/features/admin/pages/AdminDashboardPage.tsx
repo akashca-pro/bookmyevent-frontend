@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAdminServices } from "../hooks/useAdminServices";
-import { MetricsGrid } from "../components/metrics/MetricsGrid";
+// import { MetricsGrid } from "../components/metrics/MetricsGrid";
 import { ServiceFilters } from "../components/filters/ServiceFilters";
 import { ServiceList } from "../components/services/ServiceList";
 import { CreateServiceModal } from "../components/modals/CreateServiceModal";
@@ -54,7 +54,7 @@ export default function AdminDashboardPage() {
         <div className="container mx-auto px-6 pb-6 pt-24 space-y-8 animate-in fade-in duration-500">
             {/* Top Section: Metrics */}
             <section>
-                <MetricsGrid />
+                {/* <MetricsGrid /> */}
             </section>
 
             {/* Header Row */}

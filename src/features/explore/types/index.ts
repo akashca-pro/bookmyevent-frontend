@@ -25,7 +25,7 @@ export interface GetAvailableServicesResponseDTO {
     title: string;
     category: string;
     pricePerDay: number;
-    thumbnailUrl: string | null;
+    thumbnail: string | null;
     city: string; // Helpful for filtering context
 }
 

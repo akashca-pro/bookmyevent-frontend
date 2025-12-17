@@ -1,3 +1,4 @@
+import { getCloudinaryUrl } from "@/utils/cloudinaryImageUrl";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,12 +12,14 @@ interface AdminServiceCardProps {
 }
 
 export function AdminServiceCard({ service, onEdit, onView }: AdminServiceCardProps) {
+    const imageUrl = getCloudinaryUrl(service.thumbnail);
+
     return (
         <Card className="overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow">
             <div className="relative aspect-video bg-muted overflow-hidden">
-                {service.thumbnail ? (
+                {imageUrl ? (
                     <img
-                        src={service.thumbnail}
+                        src={imageUrl}
                         alt={service.title}
                         className="object-cover w-full h-full transition-transform hover:scale-105 duration-300"
                     />
@@ -26,7 +29,7 @@ export function AdminServiceCard({ service, onEdit, onView }: AdminServiceCardPr
                     </div>
                 )}
                 <div className="absolute top-2 right-2">
-                    <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm text-foreground hover:bg-white/100">
+                    <Badge variant="secondary">
                         {service.category}
                     </Badge>
                 </div>

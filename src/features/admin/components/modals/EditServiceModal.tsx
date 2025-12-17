@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { getCloudinaryUrl } from "@/utils/cloudinaryImageUrl";
+import { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UpdateServiceSchema } from "../../schemas";
-import { useUpdateService, useUploadThumbnail } from "../../hooks/useAdminServices";
+import { useUpdateService } from "../../hooks/useAdminServices";
 import {
     Dialog,
     DialogContent,
@@ -26,17 +27,6 @@ import type { UpdateServiceFuncArgs, Service } from "../../types";
 import { Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
-// Quick check: Switch component might be missing fromshadcn. I'll stick to a simple checkbox or select if needed, or implement Switch.
-// I'll assume Switch exists in shadcn/ui but I haven't checked. 
-// Actually, I'll use a Checkbox for booleans to be safe as I didn't create Switch.
-// Quick check: Switch component might be missing fromshadcn. I'll stick to a simple checkbox or select if needed, or implement Switch.
-// I'll assume Switch exists in shadcn/ui but I haven't checked. 
-// Actually, I'll use a Checkbox for booleans to be safe as I didn't create Switch.
-
-// If Checkbox doesn't exist, I'll use a simple native input type="checkbox" styled.
-// Let's create a definition for Checkbox if used? No, I'll just use native input with Label for simplicity as allowed "production-ready code only" often implies using available UI kit, but I can fallback.
-// Actually, creating a simple Checkbox component is better. But for now invalidating risk, I'll use a Select for boolean (True/False) or native checkbox.
-// The schema preprocesses strings "true"/"false", so Select is safer if I don't trust checkbox state binding perfectly without a component.
 
 interface EditServiceModalProps {
     service: Service | null;
@@ -46,14 +36,25 @@ interface EditServiceModalProps {
 
 export function EditServiceModal({ service, open, onOpenChange }: EditServiceModalProps) {
     const { mutate: updateService, isPending: isUpdating } = useUpdateService();
-    // const { mutate: uploadParams } = useUploadThumbnail(); // Hook logic might be needed for separate upload or integrated.
-    // The requirement says "Submit using multipart/form-data" for thumbnail. Frontend req: File input in Edit form.
-    // Backend supports multer. "Field name must be thumbnail".
-    // I can stick to a separate upload action or part of the edit flow.
-    // Usually editing fields is PATCH (json) and file is separate POST/PUT (multipart).
-    // Prompt says "Thumbnail upload... Frontend requirements: File input in Edit form... Submit using multipart/form-data".
-    // It implies a separate request or a unified one. Given my API structure `uploadThumbnail`, I'll handle it separately or sequentially.
-    const { mutateAsync: uploadThumbnail, isPending: isUploading } = useUploadThumbnail();
+
+    // State for image handling
+    const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+
+    // Create a stable object URL for the selected file
+    const objectUrl = useMemo(() => {
+        if (thumbnailFile) return URL.createObjectURL(thumbnailFile);
+        return null;
+    }, [thumbnailFile]);
+
+    // Cleanup object URL to avoid memory leaks
+    useEffect(() => {
+        return () => {
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+        };
+    }, [objectUrl]);
+
+    // Derived state for display
+    const displayUrl = objectUrl || getCloudinaryUrl(service?.thumbnail);
 
     const form = useForm<UpdateServiceFuncArgs>({
         resolver: zodResolver(UpdateServiceSchema) as any,
@@ -79,33 +80,32 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
                 isActive: service.isActive,
                 isArchived: service.isArchived,
             });
+            // Reset local file state when service changes
+            setThumbnailFile(null);
         }
-    }, [service, form]);
+    }, [service?.id, service?._id, form]);
 
     const onSubmit = async (data: UpdateServiceFuncArgs) => {
         if (!service || (!service.id && !service._id)) return;
         const id = service.id || service._id || "";
 
-        // 1. Update text fields
-        updateService({ id, data }, {
+        // Combine data with thumbnail file if it exists
+        const payload = {
+            ...data,
+            thumbnail: thumbnailFile || undefined
+        };
+
+        updateService({ id, data: payload }, {
             onSuccess: () => {
                 onOpenChange(false);
             }
         });
     };
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0] && service) {
-            const id = service.id || service._id;
-            if (!id) return;
-
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            try {
-                await uploadThumbnail({ id, file });
-                // Automatically refetch/refresh context logic handles in hook
-            } catch (error) {
-                console.error("Upload failed", error);
-            }
+            setThumbnailFile(file);
         }
     };
 
@@ -123,8 +123,8 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
                     {/* Thumbnail Upload Section */}
                     <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted/50">
                         <div className="flex-shrink-0 w-20 h-20 bg-muted rounded overflow-hidden border">
-                            {service?.thumbnail ? (
-                                <img src={service.thumbnail} alt="Thumbnail" className="w-full h-full object-cover" />
+                            {displayUrl ? (
+                                <img src={displayUrl} alt="Thumbnail" className="w-full h-full object-cover" />
                             ) : (
                                 <div className="flex items-center justify-center h-full w-full text-xs text-muted-foreground">No Img</div>
                             )}
@@ -136,11 +136,9 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
                                 type="file"
                                 accept="image/*"
                                 onChange={handleFileChange}
-                                disabled={isUploading}
                             />
                             <p className="text-xs text-muted-foreground">Recommended: 16:9 aspect ratio</p>
                         </div>
-                        {isUploading && <Loader2 className="animate-spin h-5 w-5 text-primary" />}
                     </div>
 
                     <Form {...form}>
