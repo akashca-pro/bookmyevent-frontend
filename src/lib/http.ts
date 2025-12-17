@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:9000/api/v1";
 
 interface ApiClientOptions extends RequestInit {
     data?: any;
@@ -29,10 +29,6 @@ export async function apiClient<T>(endpoint: string, { data, ...customConfig }: 
 
 
     const response = await fetch(`${BASE_URL}${endpoint}`, config);
-
-    if (response.status === 401) {
-
-    }
 
     const responseData = await response.json().catch(() => ({}));
 

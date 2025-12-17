@@ -48,7 +48,7 @@ export function ServiceDetailsPage() {
                     <ServiceInfo service={service} />
                 </div>
                 <div>
-                    <AvailabilityCalendar serviceId={service.id} />
+                    <AvailabilityCalendar serviceId={service._id!} />
                 </div>
             </div>
         </div>

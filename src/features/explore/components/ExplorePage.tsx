@@ -28,6 +28,7 @@ export default function ExplorePage() {
             ? Number(searchParams.get("maxPrice"))
             : undefined,
         sort: searchParams.get("sort") || undefined,
+        search : searchParams.get("search") || undefined,
     }), [searchParams]);
 
 

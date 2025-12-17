@@ -1,11 +1,11 @@
-import { useState } from "react";
+import {  useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getServiceAvailability } from "../../api/explore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getMonthlyAvailability } from "../../api/explore";
 
 interface AvailabilityCalendarProps {
     serviceId: string;
@@ -18,7 +18,7 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
     // Queries
     const { data: availabilityMap, isLoading } = useQuery({
         queryKey: ["service-availability", serviceId, currentDate.getMonth(), currentDate.getFullYear()],
-        queryFn: () => getServiceAvailability(serviceId, currentDate.getMonth() + 1, currentDate.getFullYear()), // API expects 1-12
+        queryFn: () => getMonthlyAvailability(serviceId, currentDate.getMonth() + 1, currentDate.getFullYear()), // API expects 1-12
     });
 
     const handlePreviousMonth = () => {

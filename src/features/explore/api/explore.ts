@@ -5,11 +5,11 @@ import { buildQueryString } from "@/utils/buildQueryString";
 const preUrl = "/services";
 
 export interface GetAvailableServicesQuery {
-    startDate: Date | string;
-    endDate: Date | string;
+    startDate: Date ;
+    endDate: Date ;
     limit: number;
 
-    page?: number;
+    page: number;
     category?: string;
     minPrice?: number;
     maxPrice?: number;
@@ -20,6 +20,7 @@ export interface GetAvailableServicesQuery {
 
 export interface GetAvailableServicesResponseDTO {
     id: string;
+    _id? : string;
     title: string;
     category: string;
     pricePerDay: number;
@@ -77,12 +78,12 @@ export async function getServiceById(id: string) {
     return res.data;
 }
 
-export async function getServiceAvailability(id: string, month: number, year: number) {
+export async function getMonthlyAvailability(id: string, month: number, year: number) {
     const res = await apiClient<{
         success: boolean;
         message: string;
         data: Record<string, boolean>;
-    }>(`${preUrl}/${id}/availability?month=${month}&year=${year}`, {
+    }>(`/bookings/services/${id}/availability?month=${month}&year=${year}`, {
         method: "GET",
     });
     return res.data;

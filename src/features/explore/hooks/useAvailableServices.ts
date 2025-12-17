@@ -1,10 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
-import { getAvailableServices, type GetAvailableServicesQuery } from "../api/explore";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import type { GetAvailableServicesQuery,  } from "../types";
+import { getAvailableServices } from "../api/explore";
 
-export function useAvailableServices(query: GetAvailableServicesQuery) {
+export const useAvailableServices = (params: GetAvailableServicesQuery) => {
     return useQuery({
-        queryKey: ["available-services", query],
-        queryFn: () => getAvailableServices(query),
-        placeholderData: (prev) => prev,
+        queryKey: ["available-services", params],
+        queryFn: () => getAvailableServices(params),
+        placeholderData: keepPreviousData,
+        staleTime: 1000 * 60 * 5,
     });
-}
+};
