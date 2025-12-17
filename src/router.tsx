@@ -8,6 +8,7 @@ import { AdminLoginPage } from "./features/auth/admin-login/AdminLoginPage";
 
 
 import ExplorePage from "./features/explore/components/ExplorePage";
+import { ServiceDetailsPage } from "./features/explore/pages/ServiceDetailsPage";
 
 import AdminDashboardPage from "./features/admin/pages/AdminDashboardPage";
 import { AdminProtectedRoute } from "./features/auth/components/AdminProtectedRoute";
@@ -72,6 +73,10 @@ export const router = createBrowserRouter([
             {
                 path: "explore",
                 element: <ExplorePage />,
+            },
+            {
+                path: "services/:id",
+                element: <ServiceDetailsPage />,
             },
         ],
     },

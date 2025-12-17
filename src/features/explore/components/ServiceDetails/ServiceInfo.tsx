@@ -9,15 +9,19 @@ interface ServiceInfoProps {
 export function ServiceInfo({ service }: ServiceInfoProps) {
     return (
         <div className="space-y-8">
-            {/* Description */}
-            <div className="prose max-w-none text-muted-foreground">
-                <h3 className="text-xl font-semibold text-foreground mb-3">About this Service</h3>
-                <p className="whitespace-pre-wrap leading-relaxed">{service.description}</p>
-            </div>
+            {/* Description Card */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl">About this Service</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="whitespace-pre-wrap leading-relaxed text-muted-foreground">{service.description}</p>
+                </CardContent>
+            </Card>
 
             <div className="grid gap-6 md:grid-cols-2">
                 {/* Location Card */}
-                <Card>
+                <Card className="h-full">
                     <CardHeader>
                         <CardTitle className="flex items-center text-lg">
                             <MapPin className="mr-2 h-5 w-5 text-primary" />
@@ -31,7 +35,7 @@ export function ServiceInfo({ service }: ServiceInfoProps) {
                 </Card>
 
                 {/* Contact Card */}
-                <Card>
+                <Card className="h-full">
                     <CardHeader>
                         <CardTitle className="flex items-center text-lg">
                             <Phone className="mr-2 h-5 w-5 text-primary" />
