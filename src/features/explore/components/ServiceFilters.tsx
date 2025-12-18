@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { GetAvailableServicesQuery } from "../api/explore";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useCategoriesOptions } from "@/hooks/useCategoriesOptions";
 
 interface ServiceFiltersProps {
     filters: Partial<GetAvailableServicesQuery>;
@@ -11,14 +12,7 @@ interface ServiceFiltersProps {
     onClearFilters: () => void;
 }
 
-const CATEGORIES = [
-    "Venue",
-    "Hotel",
-    "Caterer",
-    "Photographer",
-    "DJ",
-    "Decorator",
-];
+
 
 const CITIES = [
     "Mumbai",
@@ -33,6 +27,7 @@ const CITIES = [
 ];
 
 export function ServiceFilters({ filters, onFilterChange, onClearFilters }: ServiceFiltersProps) {
+    const { data: categories } = useCategoriesOptions();
     const [localSearch, setLocalSearch] = useState((filters as any).search || "");
     const [localMinPrice, setLocalMinPrice] = useState(filters.minPrice?.toString() || "");
     const [localMaxPrice, setLocalMaxPrice] = useState(filters.maxPrice?.toString() || "");
@@ -73,7 +68,6 @@ export function ServiceFilters({ filters, onFilterChange, onClearFilters }: Serv
                         />
                     </div>
 
-                    {/* Category */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Category</label>
                         <Select
@@ -87,9 +81,9 @@ export function ServiceFilters({ filters, onFilterChange, onClearFilters }: Serv
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="All">All Categories</SelectItem>
-                                {CATEGORIES.map((cat) => (
-                                    <SelectItem key={cat} value={cat}>
-                                        {cat}
+                                {categories?.map((cat) => (
+                                    <SelectItem key={cat.id} value={cat.value}>
+                                        {cat.label}
                                     </SelectItem>
                                 ))}
                             </SelectContent>

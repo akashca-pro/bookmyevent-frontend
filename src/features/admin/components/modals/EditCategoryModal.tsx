@@ -61,7 +61,7 @@ export function EditCategoryModal({ category, open, onOpenChange }: EditCategory
 
     const onSubmit = (data: UpdateCategoryDTO) => {
         updateCategory(
-            { id: category._id, data },
+            { id: category.id!, data },
             {
                 onSuccess: () => {
                     onOpenChange(false);

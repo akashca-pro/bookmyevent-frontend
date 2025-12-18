@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UpdateServiceSchema } from "../../schemas";
 import { useUpdateService } from "../../hooks/useAdminServices";
+import { useCategoriesOptions } from "@/hooks/useCategoriesOptions";
 import {
     Dialog,
     DialogContent,
@@ -36,6 +37,7 @@ interface EditServiceModalProps {
 
 export function EditServiceModal({ service, open, onOpenChange }: EditServiceModalProps) {
     const { mutate: updateService, isPending: isUpdating } = useUpdateService();
+    const { data: categories } = useCategoriesOptions();
 
     // State for image handling
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -73,7 +75,7 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
             form.reset({
                 title: service.title,
                 description: service.description,
-                category: service.category,
+                category: service.category.id, // Use ID for form value
                 pricePerDay: service.pricePerDay,
                 location: service.location,
                 contact: service.contact,
@@ -83,11 +85,11 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
             // Reset local file state when service changes
             setThumbnailFile(null);
         }
-    }, [service?.id, service?._id, form]);
+    }, [service, form]);
 
     const onSubmit = async (data: UpdateServiceFuncArgs) => {
-        if (!service || (!service.id && !service._id)) return;
-        const id = service.id || service._id || "";
+        if (!service?.id) return;
+        const id = service.id;
 
         // Combine data with thumbnail file if it exists
         const payload = {
@@ -172,10 +174,11 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
                                                             </SelectTrigger>
                                                         </FormControl>
                                                         <SelectContent>
-                                                            <SelectItem value="venue">Venue</SelectItem>
-                                                            <SelectItem value="catering">Catering</SelectItem>
-                                                            <SelectItem value="photography">Photography</SelectItem>
-                                                            <SelectItem value="decoration">Decoration</SelectItem>
+                                                            {categories?.map((cat) => (
+                                                                <SelectItem key={cat.id} value={cat.id}>
+                                                                    {cat.label}
+                                                                </SelectItem>
+                                                            ))}
                                                         </SelectContent>
                                                     </Select>
                                                     <FormMessage />

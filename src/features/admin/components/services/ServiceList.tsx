@@ -48,7 +48,7 @@ export function ServiceList({ data, isLoading, onEdit, onView, page, setPage }: 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {data.data.map((service) => (
                     <AdminServiceCard
-                        key={service._id}
+                        key={service.id}
                         service={service}
                         onEdit={onEdit}
                         onView={onView}

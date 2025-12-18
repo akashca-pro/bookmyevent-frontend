@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useSearchParams } from "react-router-dom";
+import { useCategoriesOptions } from "@/hooks/useCategoriesOptions";
 
 import { useEffect, useState, useCallback } from "react";
 import { X } from "lucide-react";
@@ -23,6 +24,7 @@ function useDebounceValue<T>(value: T, delay: number): T {
 
 export function ServiceFilters() {
     const [searchParams, setSearchParams] = useSearchParams();
+    const { data: categories } = useCategoriesOptions();
 
     const [search, setSearch] = useState(searchParams.get("search") || "");
     const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
@@ -91,10 +93,11 @@ export function ServiceFilters() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Categories</SelectItem>
-                            <SelectItem value="venue">Venue</SelectItem>
-                            <SelectItem value="catering">Catering</SelectItem>
-                            <SelectItem value="photography">Photography</SelectItem>
-                            <SelectItem value="decoration">Decoration</SelectItem>
+                            {categories?.map((cat) => (
+                                <SelectItem key={cat.id} value={cat.value}>
+                                    {cat.label}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 </div>

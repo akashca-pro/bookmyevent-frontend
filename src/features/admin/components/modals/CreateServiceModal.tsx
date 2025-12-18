@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateServiceSchema } from "../../schemas";
 import { useCreateService } from "../../hooks/useAdminServices";
+import { useCategoriesOptions } from "@/hooks/useCategoriesOptions";
 import {
     Dialog,
     DialogContent,
@@ -31,6 +32,7 @@ interface CreateServiceModalProps {
 
 export function CreateServiceModal({ open, onOpenChange }: CreateServiceModalProps) {
     const { mutate, isPending } = useCreateService();
+    const { data: categories } = useCategoriesOptions();
 
     const form = useForm<CreateServiceFuncArgs>({
         resolver: zodResolver(CreateServiceSchema) as any,
@@ -107,10 +109,11 @@ export function CreateServiceModal({ open, onOpenChange }: CreateServiceModalPro
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
-                                                        <SelectItem value="venue">Venue</SelectItem>
-                                                        <SelectItem value="catering">Catering</SelectItem>
-                                                        <SelectItem value="photography">Photography</SelectItem>
-                                                        <SelectItem value="decoration">Decoration</SelectItem>
+                                                        {categories?.map((cat) => (
+                                                            <SelectItem key={cat.id} value={cat.id}>
+                                                                {cat.label}
+                                                            </SelectItem>
+                                                        ))}
                                                     </SelectContent>
                                                 </Select>
                                                 <FormMessage />

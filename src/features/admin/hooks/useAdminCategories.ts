@@ -8,7 +8,7 @@ export function useAdminCategories() {
     const queryClient = useQueryClient();
 
     const [page, setPage] = useState(1);
-    const limit = 9; // Fixed limit for now
+    const limit = 9; 
 
     const categoriesQuery = useQuery({
         queryKey: ["admin-categories", page, limit],

@@ -51,13 +51,6 @@ export interface ServiceMetrics {
     totalRevenue: number;
 }
 
-export interface PaginationDTO<T> {
-    data: T[];
-    total: number;
-    page: number;
-    limit: number;
-}
-
 export interface GetServicesParams {
     page?: number;
     limit?: number;
@@ -70,22 +63,8 @@ export interface GetServicesParams {
     sort?: string;
 }
 
-export interface GetCategoryParams {
-    page?: number;
-    limit?: number;
-}
-
-export interface Category {
-    _id: string;
-    id?: string;
-    name: string;
-    slug: string;
-    description: string;
-    isActive: boolean;
-    isArchived: boolean;
-    createdAt: string;
-    updatedAt: string;
-}
+// Re-export shared types
+export type { Category, PaginationDTO, GetCategoryParams } from "@/types/category";
 
 export interface CreateCategoryDTO {
     name: string;
