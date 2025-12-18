@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import { useState } from "react";
 import { fetchCategories, createCategory, updateCategory, deleteCategory } from "../api/categories";
 import type { CreateCategoryDTO, UpdateCategoryDTO } from "../types";
 import { toast } from "sonner";
@@ -6,9 +7,13 @@ import { toast } from "sonner";
 export function useAdminCategories() {
     const queryClient = useQueryClient();
 
+    const [page, setPage] = useState(1);
+    const limit = 9; // Fixed limit for now
+
     const categoriesQuery = useQuery({
-        queryKey: ["admin-categories"],
-        queryFn: fetchCategories,
+        queryKey: ["admin-categories", page, limit],
+        queryFn: () => fetchCategories({ page, limit }),
+        placeholderData: keepPreviousData,
     });
 
     const createMutation = useMutation({
@@ -46,7 +51,11 @@ export function useAdminCategories() {
     });
 
     return {
-        categories: categoriesQuery.data || [],
+        categories: categoriesQuery.data?.data || [],
+        total: categoriesQuery.data?.total || 0,
+        page,
+        limit,
+        setPage,
         isLoading: categoriesQuery.isLoading,
         error: categoriesQuery.error,
         createCategory: createMutation.mutate,

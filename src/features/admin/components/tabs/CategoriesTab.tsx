@@ -4,11 +4,12 @@ import { Plus } from "lucide-react";
 import { CategoryList } from "../categories/CategoryList";
 import { CreateCategoryModal } from "../modals/CreateCategoryModal";
 import { EditCategoryModal } from "../modals/EditCategoryModal";
+import { PaginationControls } from "../PaginationControls";
 import { useAdminCategories } from "../../hooks/useAdminCategories";
 import type { Category } from "../../types";
 
 export function CategoriesTab() {
-    const { categories, isLoading } = useAdminCategories();
+    const { categories, isLoading, page, total, limit, setPage } = useAdminCategories();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -32,6 +33,13 @@ export function CategoriesTab() {
                 data={categories}
                 isLoading={isLoading}
                 onEdit={handleEdit}
+            />
+
+            <PaginationControls
+                page={page}
+                total={total}
+                limit={limit}
+                onPageChange={setPage}
             />
 
             <CreateCategoryModal

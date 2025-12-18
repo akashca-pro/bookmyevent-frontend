@@ -34,12 +34,12 @@ export function ServiceDetailsSheet({ service, open, onOpenChange }: ServiceDeta
                 <SheetHeader>
                     <SheetTitle>{service.title}</SheetTitle>
                     <SheetDescription>
-                        {service.id || service._id}
+                        {service.id || service.id}
                         <Button
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6 ml-2"
-                            onClick={() => copyToClipboard(service.id || service._id || "", "ID")}
+                            onClick={() => copyToClipboard(service.id || service.id || "", "ID")}
                         >
                             <Copy className="h-3 w-3" />
                         </Button>
@@ -55,7 +55,7 @@ export function ServiceDetailsSheet({ service, open, onOpenChange }: ServiceDeta
                                 No Thumbnail
                             </div>
                         )}
-                        <Badge className=" absolute top-2 right-2">{service.category}</Badge>
+                        <Badge className=" absolute top-2 right-2">{service.category.name}</Badge>
                     </div>
 
                     <div>

@@ -30,7 +30,7 @@ export function AdminServiceCard({ service, onEdit, onView }: AdminServiceCardPr
                 )}
                 <div className="absolute top-2 right-2">
                     <Badge variant="secondary">
-                        {service.category}
+                        {service.category.name}
                     </Badge>
                 </div>
                 {!service.isActive && (

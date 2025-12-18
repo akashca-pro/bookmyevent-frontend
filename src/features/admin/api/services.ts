@@ -68,11 +68,6 @@ export const updateService = async (id: string, data: UpdateServiceFuncArgs & { 
         // if user passed it as separate arg (types intersection), we deal with it
     }
 
-    // The user's backend log showed "thumbnail" field is expected. 
-    // The previous code had "data" including thumbnail? No, types intersection.
-    // The loop above iterates 'data' which is UpdateServiceFuncArgs & { thumbnail?: File }.
-    // So thumbnail is covered.
-
     return apiClient<Service>(`${BASE_PATH}/${id}/update`, {
         method: "PATCH",
         body: formData,
@@ -83,22 +78,4 @@ export const deleteService = async (id: string): Promise<void> => {
     return apiClient<void>(`${BASE_PATH}/${id}`, {
         method: "DELETE",
     });
-};
-
-export const uploadThumbnail = async (id: string, file: File): Promise<{ url: string }> => {
-    const formData = new FormData();
-    formData.append("thumbnail", file);
-    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const res = await fetch(`${BASE_URL}${BASE_PATH}/${id}/thumbnail`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-    });
-
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Upload failed');
-    }
-
-    return res.json();
 };

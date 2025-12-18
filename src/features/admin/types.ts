@@ -20,12 +20,18 @@ export interface IContact {
     email: string;
 }
 
+export interface ICategory {
+    id: string
+    name: string;
+    slug: string;
+    description?: string;
+}
+
 export interface Service {
-    _id?: string; // Mongoose ID
-    id?: string; // Frontend alias if needed, or just use _id
+    id?: string;
     adminId: string;
     title: string;
-    category: string;
+    category: ICategory;
     pricePerDay: number;
     description: string;
     thumbnail: string | null;
@@ -64,6 +70,11 @@ export interface GetServicesParams {
     sort?: string;
 }
 
+export interface GetCategoryParams {
+    page?: number;
+    limit?: number;
+}
+
 export interface Category {
     _id: string;
     id?: string;
@@ -72,7 +83,6 @@ export interface Category {
     description: string;
     isActive: boolean;
     isArchived: boolean;
-    adminId: string;
     createdAt: string;
     updatedAt: string;
 }

@@ -4,7 +4,6 @@ import {
     fetchServiceMetrics,
     createService,
     updateService,
-    uploadThumbnail
 } from "../api/services";
 import type { GetServicesParams, UpdateServiceFuncArgs, CreateServiceFuncArgs, Service, PaginationDTO } from "../types";
 import { toast } from "sonner";
@@ -72,18 +71,6 @@ export const useUpdateService = () => {
             toast.error('Error', {
                 description: error?.message
             })
-        },
-    });
-};
-
-export const useUploadThumbnail = () => {
-    return useMutation({
-        mutationFn: ({ id, file }: { id: string; file: File }) => uploadThumbnail(id, file),
-        onSuccess: () => {
-            toast.success("Thumbnail uploaded successfully");
-        },
-        onError: (error: any) => {
-            toast.error(`Failed to upload thumbnail: ${error.message} `);
         },
     });
 };

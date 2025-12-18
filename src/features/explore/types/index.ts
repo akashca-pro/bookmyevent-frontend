@@ -23,7 +23,11 @@ export type GetAvailableServicesQuery = z.infer<typeof GetAvailableServicesQuery
 export interface GetAvailableServicesResponseDTO {
     id: string; // Added ID for keys
     title: string;
-    category: string;
+    category: {
+        id: string;
+        name: string;
+        slug: string;
+    };
     pricePerDay: number;
     thumbnail: string | null;
     city: string; // Helpful for filtering context
