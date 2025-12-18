@@ -1,19 +1,75 @@
-import {  useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getMonthlyAvailability } from "../../api/explore";
+import { getMonthlyAvailability, getServiceById } from "../../api/explore";
+import { createBooking } from "@/features/bookings/api/bookings";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface AvailabilityCalendarProps {
     serviceId: string;
 }
 
 export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
+    const navigate = useNavigate();
     const today = new Date();
     const [currentDate, setCurrentDate] = useState(today);
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    // Fetch service details for passing to confirmation page
+    const { data: service } = useQuery({
+        queryKey: ["service-details", serviceId],
+        queryFn: () => getServiceById(serviceId),
+        enabled: !!serviceId
+    });
+
+    const { mutate: book, isPending } = useMutation({
+        mutationFn: (data: { startDate: Date; endDate: Date }) =>
+            createBooking(serviceId, data),
+        onSuccess: (booking) => {
+            if (!service) return;
+            navigate(`/services/${serviceId}/confirm-booking`, {
+                state: {
+                    service: service,
+                    booking: booking // Pass the full booking object
+                }
+            });
+        },
+        onError: (err: any) => {
+            toast.error(err.message || "Failed to initiate booking");
+        }
+    });
+
+    const handleDateClick = (day: number) => {
+        const clickedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+        setError(null);
+
+        if (!startDate || (startDate && endDate)) {
+            setStartDate(clickedDate);
+            setEndDate(null);
+        } else {
+            // Check if clicked date is before start date
+            if (clickedDate < startDate) {
+                setStartDate(clickedDate);
+            } else {
+                setEndDate(clickedDate);
+            }
+        }
+    };
+
+    const handleBookService = () => {
+        if (!startDate || !endDate) {
+            setError("Please select a date range");
+            return;
+        }
+        book({ startDate, endDate });
+    };
 
     // Queries
     const { data: availabilityMap, isLoading } = useQuery({
@@ -22,7 +78,9 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
     });
 
     const handlePreviousMonth = () => {
-        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+        const previousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        if (previousMonth < new Date(today.getFullYear(), today.getMonth(), 1)) return;
+        setCurrentDate(previousMonth);
     };
 
     const handleNextMonth = () => {
@@ -30,11 +88,22 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
     };
 
     const handleMonthSelect = (monthStr: string) => {
-        setCurrentDate(new Date(currentDate.getFullYear(), parseInt(monthStr), 1));
+        const newMonth = parseInt(monthStr);
+        // Prevent selecting past months in current year
+        if (currentDate.getFullYear() === today.getFullYear() && newMonth < today.getMonth()) {
+            return;
+        }
+        setCurrentDate(new Date(currentDate.getFullYear(), newMonth, 1));
     };
 
     const handleYearSelect = (yearStr: string) => {
-        setCurrentDate(new Date(parseInt(yearStr), currentDate.getMonth(), 1));
+        const newYear = parseInt(yearStr);
+        // If switching to current year but month is in past, reset to current month
+        let newMonth = currentDate.getMonth();
+        if (newYear === today.getFullYear() && newMonth < today.getMonth()) {
+            newMonth = today.getMonth();
+        }
+        setCurrentDate(new Date(newYear, newMonth, 1));
     };
 
     // Calendar Grid Logic
@@ -57,15 +126,18 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
 
     const isDateBooked = (day: number) => {
         if (!availabilityMap) return false;
-        // Construct date string YYYY-MM-DD manually to match API response format likely YYYY-MM-DD
-        // Assuming API returns keys as YYYY-MM-DD.
-        // Needs careful padding.
         const year = currentDate.getFullYear();
         const month = String(currentDate.getMonth() + 1).padStart(2, '0');
         const d = String(day).padStart(2, '0');
         const dateStr = `${year}-${month}-${d}`;
         return availabilityMap[dateStr] === true;
     };
+
+    const isPastDate = (day: number) => {
+        const checkDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+        const todayZero = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        return checkDate < todayZero;
+    }
 
     const isToday = (day: number) => {
         return (
@@ -85,12 +157,20 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
         return Array.from({ length: 3 }, (_, i) => currentYear + i); // Current + next 2 years
     };
 
+    // Check if we can go back
+    const canGoBack = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1) > new Date(today.getFullYear(), today.getMonth(), 1);
+
     return (
         <Card className="sticky top-20">
             <CardHeader className="space-y-4">
                 <CardTitle className="text-xl">Check Availability</CardTitle>
                 <div className="flex items-center justify-between gap-2">
-                    <Button variant="outline" size="icon" onClick={handlePreviousMonth}>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handlePreviousMonth}
+                        disabled={!canGoBack}
+                    >
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <div className="flex gap-2">
@@ -102,11 +182,14 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
                                 <SelectValue>{monthNames[currentDate.getMonth()]}</SelectValue>
                             </SelectTrigger>
                             <SelectContent>
-                                {monthNames.map((month, index) => (
-                                    <SelectItem key={month} value={String(index)}>
-                                        {month}
-                                    </SelectItem>
-                                ))}
+                                {monthNames.map((month, index) => {
+                                    const isDisabled = currentDate.getFullYear() === today.getFullYear() && index < today.getMonth();
+                                    return (
+                                        <SelectItem key={month} value={String(index)} disabled={isDisabled}>
+                                            {month}
+                                        </SelectItem>
+                                    );
+                                })}
                             </SelectContent>
                         </Select>
                         <Select
@@ -152,36 +235,55 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
                         {/* Days */}
                         {days.map(day => {
                             const blocked = isDateBooked(day);
+                            const past = isPastDate(day);
                             const current = isToday(day);
 
+                            // Date Construction
+                            const dateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                            const isSelected = (startDate && dateObj.getTime() === startDate.getTime()) || (endDate && dateObj.getTime() === endDate.getTime());
+                            const isInRange = startDate && endDate && dateObj > startDate && dateObj < endDate;
+
                             return (
-                                <div
+                                <button
                                     key={day}
+                                    disabled={blocked || past}
+                                    onClick={() => handleDateClick(day)}
                                     className={cn(
-                                        "h-10 w-full flex items-center justify-center rounded-md text-sm transition-colors cursor-default",
-                                        blocked
-                                            ? "bg-muted text-muted-foreground line-through cursor-not-allowed opacity-50"
+                                        "h-10 w-full flex items-center justify-center rounded-md text-sm transition-colors cursor-pointer",
+                                        (blocked || past)
+                                            ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
                                             : "hover:bg-primary/20 bg-secondary/30 font-medium text-foreground",
-                                        current && "ring-2 ring-primary ring-offset-1 font-bold bg-primary/10"
+                                        past && "line-through", // Optional visual cue for past dates specifically
+                                        current && !isSelected && !isInRange && "ring-2 ring-primary ring-offset-1 font-bold bg-primary/10",
+                                        isSelected && "bg-primary text-primary-foreground hover:bg-primary/90",
+                                        isInRange && "bg-primary/20"
                                     )}
-                                    title={blocked ? "Booked" : "Available"}
+                                    title={blocked ? "Booked" : past ? "Past Date" : "Available"}
                                 >
                                     {day}
-                                </div>
+                                </button>
                             );
                         })}
                     </div>
                 )}
 
-                <div className="mt-6">
-                    <Button className="w-full" size="lg">
+                <div className="mt-6 space-y-4">
+                    <div className="flex justify-between text-sm">
+                        <span>Start: {startDate ? startDate.toLocaleDateString() : "-"}</span>
+                        <span>End: {endDate ? endDate.toLocaleDateString() : "-"}</span>
+                    </div>
+                    {error && <p className="text-sm text-destructive">{error}</p>}
+                    <Button
+                        className="w-full"
+                        size="lg"
+                        onClick={handleBookService}
+                        disabled={!startDate || !endDate || isPending}
+                    >
+                        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Book Service
                     </Button>
-                    <p className="text-xs text-center text-muted-foreground mt-2">
-                        Select dates to book (Implementation Pending)
-                    </p>
                 </div>
             </CardContent>
-        </Card>
+        </Card >
     );
 }

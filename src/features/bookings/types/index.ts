@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { PaginationDTO } from "../../admin/types";
+import type { PaginationDTO } from "@/types/category";
 
 export const GetBookingsQuerySchema = z.object({
     page: z.coerce
@@ -37,9 +37,26 @@ export interface ServiceDetails {
     thumbnail: string | null;
 }
 
+export type BookingsResponseDTO = PaginationDTO<Booking>;
+
 export interface Booking {
-    bookingDetails: BookingDetails;
-    serviceDetails: ServiceDetails;
+    id: string; // or _id
+    _id?: string;
+    userId: string;
+    serviceId: string;
+    startDate: string; // Date strings from API
+    endDate: string;
+    totalPrice: number;
+    status: string; // or enum if known
+    createdAt: string;
+    updatedAt: string;
+    // Including nested details if API returns them populated, otherwise we might need them separate
+    // The user's snippet didn't show populated fields, but ConfirmationPage needs them.
+    // However, ConfirmationPage takes `service` from previous page state, so we might only need booking details here.
+    // Let's assume the response is exactly what user pasted.
 }
 
-export type BookingsResponseDTO = PaginationDTO<Booking>;
+export interface CreateBookingPayload {
+    startDate: Date;
+    endDate: Date;
+}

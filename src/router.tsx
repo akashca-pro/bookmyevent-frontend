@@ -16,6 +16,7 @@ import { UserProtectedRoute } from "./features/auth/components/UserProtectedRout
 import { PublicOnlyRoute } from "./features/auth/components/PublicOnlyRoute";
 import UserDashboardPage from "./features/dashboard/pages/UserDashboardPage";
 import ProfilePage from "./features/profile/pages/ProfilePage";
+import { BookingConfirmationPage } from "./features/bookings/components/BookingConfirmationPage";
 
 export const router = createBrowserRouter([
     {
@@ -67,6 +68,10 @@ export const router = createBrowserRouter([
                     {
                         path: "profile",
                         element: <ProfilePage />,
+                    },
+                    {
+                        path: "services/:id/confirm-booking",
+                        element: <BookingConfirmationPage />,
                     },
                 ],
             },

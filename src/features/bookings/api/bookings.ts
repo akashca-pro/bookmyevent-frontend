@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/http";
-import type { BookingsResponseDTO, GetBookingsParams } from "../types";
+import type { BookingsResponseDTO, GetBookingsParams, CreateBookingPayload, Booking } from "../types";
 
 const BASE_PATH = "/bookings";
 
@@ -11,4 +11,13 @@ export const fetchBookings = async (params: GetBookingsParams): Promise<Bookings
     if (params.sort) searchParams.set("sort", params.sort);
 
     return apiClient<BookingsResponseDTO>(`${BASE_PATH}?${searchParams.toString()}`);
+};
+
+// Response is a single Booking object
+export const createBooking = async (serviceId: string, data: CreateBookingPayload): Promise<Booking> => {
+    return apiClient(`${BASE_PATH}/services/${serviceId}/create`, { data });
+};
+
+export const confirmBooking = async (bookingId: string): Promise<Booking> => {
+    return apiClient(`${BASE_PATH}/${bookingId}/confirm`, { method: 'PUT' });
 };
