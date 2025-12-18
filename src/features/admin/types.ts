@@ -63,3 +63,30 @@ export interface GetServicesParams {
     adminId?: string;
     sort?: string;
 }
+
+export interface Category {
+    _id: string;
+    id?: string;
+    name: string;
+    slug: string;
+    description: string;
+    isActive: boolean;
+    isArchived: boolean;
+    adminId: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreateCategoryDTO {
+    name: string;
+    slug: string;
+    description: string;
+}
+
+export interface UpdateCategoryDTO {
+    name?: string;
+    slug?: string;
+    description?: string;
+    isActive?: boolean;
+    isArchived?: boolean;
+}

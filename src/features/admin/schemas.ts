@@ -72,3 +72,22 @@ export const GetServicesQuerySchema = z.object({
     search: z.string().optional(),
 });
 
+export const CreateCategorySchema = z.object({
+    name: z.string().min(3, "Name must be at least 3 characters"),
+    slug: z.string()
+        .min(1, "Slug is required")
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase, URL-safe, and contain no spaces"),
+    description: z.string().min(10, "Description must be at least 10 characters"),
+});
+
+export const UpdateCategorySchema = z.object({
+    name: z.string().min(3, "Name must be at least 3 characters").optional(),
+    slug: z.string()
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase, URL-safe, and contain no spaces")
+        .optional(),
+    description: z.string().min(10, "Description must be at least 10 characters").optional(),
+    isActive: z.boolean().optional(),
+    isArchived: z.boolean().optional(),
+});
+
+
