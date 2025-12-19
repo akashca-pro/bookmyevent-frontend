@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
-import { confirmBooking } from "../api/bookings";
+import { confirmBooking, cancelBooking } from "../api/bookings";
 import { ServiceSummaryCard } from "./ServiceSummaryCard";
 import { BookingDetailsCard } from "./BookingDetailsCard";
 import { CountdownTimer } from "./CountdownTimer";
@@ -24,6 +24,7 @@ export function BookingConfirmationPage() {
     const { id } = useParams();
     const state = location.state as LocationState;
     const [isConfirmed, setIsConfirmed] = useState(false);
+    const [isCancelled, setIsCancelled] = useState(false);
 
     // Guard against direct access without state
     useEffect(() => {
@@ -34,11 +35,24 @@ export function BookingConfirmationPage() {
     }, [state, navigate, id]);
 
     // Local state for navigation blocking
-    // We only want to block if NOT confirmed yet
-    const isSessionActive = !isConfirmed && !!state?.service;
+    // We only want to block if NOT confirmed yet AND NOT cancelled
+    const isSessionActive = !isConfirmed && !isCancelled && !!state?.service;
 
-    // Enable blocker while session is active and not confirmed
+    // Enable blocker while session is active and not confirmed/cancelled
     useDirtyBlocker(isSessionActive);
+
+    // Handle navigation after cancellation to ensure blocker is disabled first
+    useEffect(() => {
+        if (isCancelled && state?.service) {
+            const targetId = state.service.id || (state.service as any)._id;
+            if (targetId) {
+                navigate(`/services/${targetId}`);
+            } else {
+                console.error("Missing service ID for navigation", state.service);
+                navigate("/explore");
+            }
+        }
+    }, [isCancelled, state, navigate]);
 
     const { mutate: confirm, isPending } = useMutation({
         mutationFn: () => confirmBooking(state.service.id!, state.booking.id || state.booking._id!),
@@ -52,9 +66,10 @@ export function BookingConfirmationPage() {
     });
 
     const handleTimeout = () => {
-        if (isConfirmed) return;
+        if (isConfirmed || isCancelled) return;
         toast.error("Session timed out. Please try booking again.");
-        navigate(`/services/${state?.service.id}`, { replace: true });
+        const targetId = state?.service?.id || (state?.service as any)?._id;
+        navigate(targetId ? `/services/${targetId}` : "/explore", { replace: true });
     };
 
     const handleConfirm = () => {
@@ -62,8 +77,20 @@ export function BookingConfirmationPage() {
         confirm();
     };
 
+    const { mutate: cancel, isPending: isCanceling } = useMutation({
+        mutationFn: () => cancelBooking(state.booking.id || state.booking._id!),
+        onSuccess: () => {
+            toast.success("Booking cancelled.");
+            setIsCancelled(true);
+        },
+        onError: (err: any) => {
+            toast.error(err.message || "Failed to cancel booking.");
+        }
+    });
+
     const handleCancel = () => {
-        navigate(-1);
+        if (!state.booking) return;
+        cancel();
     };
 
     if (!state?.service || !state?.booking) {
@@ -158,8 +185,9 @@ export function BookingConfirmationPage() {
                                 size="lg"
                                 className="w-full"
                                 onClick={handleCancel}
-                                disabled={isPending}
+                                disabled={isPending || isCanceling}
                             >
+                                {isCanceling && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
                                 Cancel
                             </Button>
                         </div>

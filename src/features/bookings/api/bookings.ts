@@ -25,7 +25,8 @@ export const confirmBooking = async (serviceId: string, bookingId: string): Prom
     return res.data;
 };
 
-// Keeping this for backward compatibility if needed, but the new flow uses reserveBooking
-export const createBooking = async (serviceId: string, data: CreateBookingPayload): Promise<Booking> => {
-    return reserveBooking(serviceId, data);
+
+
+export const cancelBooking = async (bookingId: string): Promise<void> => {
+    await apiClient<{ success: boolean; data: any }>(`${BASE_PATH}/${bookingId}/cancel`, { method: 'POST' });
 };

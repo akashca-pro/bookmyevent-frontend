@@ -54,6 +54,16 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
 
     const handleDateClick = (day: number) => {
         const clickedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+
+        if (service?.availability) {
+            const availableFrom = new Date(service.availability.from);
+            const availableTo = new Date(service.availability.to);
+            availableFrom.setHours(0, 0, 0, 0);
+            availableTo.setHours(0, 0, 0, 0);
+
+            if (clickedDate < availableFrom || clickedDate > availableTo) return;
+        }
+
         setError(null);
 
         if (!startDate || (startDate && endDate)) {
@@ -85,31 +95,80 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
 
     const handlePreviousMonth = () => {
         const previousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+
+        // Check against today
         if (previousMonth < new Date(today.getFullYear(), today.getMonth(), 1)) return;
+
+        // Check against service availability start
+        if (service?.availability) {
+            const availableFrom = new Date(service.availability.from);
+            // Allow if month is same or after available month
+            const prevMonthEnd = new Date(previousMonth.getFullYear(), previousMonth.getMonth() + 1, 0);
+            if (prevMonthEnd < availableFrom) return;
+        }
+
         setCurrentDate(previousMonth);
     };
 
     const handleNextMonth = () => {
-        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+        const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+
+        // Check against service availability end
+        if (service?.availability) {
+            const availableTo = new Date(service.availability.to);
+            // Allow if month is same or before available month
+            if (nextMonth > availableTo) return;
+        }
+
+        setCurrentDate(nextMonth);
     };
 
     const handleMonthSelect = (monthStr: string) => {
         const newMonth = parseInt(monthStr);
+        const newDate = new Date(currentDate.getFullYear(), newMonth, 1);
+
         // Prevent selecting past months in current year
         if (currentDate.getFullYear() === today.getFullYear() && newMonth < today.getMonth()) {
             return;
         }
-        setCurrentDate(new Date(currentDate.getFullYear(), newMonth, 1));
+
+        if (service?.availability) {
+            const availableFrom = new Date(service.availability.from);
+            const availableTo = new Date(service.availability.to);
+            const newDateEnd = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
+
+            if (newDateEnd < availableFrom || newDate > availableTo) return;
+        }
+
+        setCurrentDate(newDate);
     };
 
     const handleYearSelect = (yearStr: string) => {
         const newYear = parseInt(yearStr);
-        // If switching to current year but month is in past, reset to current month
         let newMonth = currentDate.getMonth();
+
+        // If switching to current year but month is in past, reset to current month
         if (newYear === today.getFullYear() && newMonth < today.getMonth()) {
             newMonth = today.getMonth();
         }
-        setCurrentDate(new Date(newYear, newMonth, 1));
+
+        const newDate = new Date(newYear, newMonth, 1);
+
+        if (service?.availability) {
+            const availableFrom = new Date(service.availability.from);
+            const availableTo = new Date(service.availability.to);
+            // If selected year/month is out of range, try to find a valid month in that year
+            if (newDate > availableTo || newDate < availableFrom) {
+                // Logic to clamp to valid range could go here, but for now just basic valid check or keeping current logic
+                // Let's just allow switch but if it lands on invalid month, user can navigate
+                // Or better: auto-adjust month if possible. 
+
+                // If year is within range but month isn't, maybe we can accept. 
+                // But simplest is to just allow and let the date cells be disabled.
+            }
+        }
+
+        setCurrentDate(newDate);
     };
 
     // Calendar Grid Logic
@@ -159,8 +218,18 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
     ];
 
     const generateYears = () => {
+        if (service?.availability) {
+            const startYear = new Date(service.availability.from).getFullYear();
+            const endYear = new Date(service.availability.to).getFullYear();
+            const years: number[] = [];
+            for (let i = startYear; i <= endYear; i++) {
+                if (i >= today.getFullYear()) years.push(i);
+            }
+            return years.length > 0 ? years : [today.getFullYear()];
+        }
+
         const currentYear = today.getFullYear();
-        return Array.from({ length: 3 }, (_, i) => currentYear + i); // Current + next 2 years
+        return Array.from({ length: 3 }, (_, i) => currentYear + i); // Fallback
     };
 
     // Check if we can go back
@@ -246,25 +315,38 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
 
                             // Date Construction
                             const dateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+
+                            // Availability Check
+                            let isOutOfAvailability = false;
+                            if (service?.availability) {
+                                const availableFrom = new Date(service.availability.from);
+                                const availableTo = new Date(service.availability.to);
+                                // Reset times for accurate date comparison
+                                availableFrom.setHours(0, 0, 0, 0);
+                                availableTo.setHours(0, 0, 0, 0);
+
+                                isOutOfAvailability = dateObj < availableFrom || dateObj > availableTo;
+                            }
+
                             const isSelected = (startDate && dateObj.getTime() === startDate.getTime()) || (endDate && dateObj.getTime() === endDate.getTime());
                             const isInRange = startDate && endDate && dateObj > startDate && dateObj < endDate;
 
                             return (
                                 <button
                                     key={day}
-                                    disabled={blocked || past}
-                                    onClick={() => handleDateClick(day)}
+                                    disabled={blocked || past || isOutOfAvailability}
+                                    onClick={() => !isOutOfAvailability && handleDateClick(day)}
                                     className={cn(
                                         "h-10 w-full flex items-center justify-center rounded-md text-sm transition-colors cursor-pointer",
-                                        past && "bg-muted text-muted-foreground cursor-not-allowed opacity-50",
-                                        blocked && !past && "bg-red-500/20 text-red-500 cursor-not-allowed border border-red-500/20",
-                                        !past && !blocked && "hover:bg-primary/20 bg-secondary/30 font-medium text-foreground",
+                                        (past || isOutOfAvailability) && "bg-muted text-muted-foreground cursor-not-allowed opacity-50",
+                                        blocked && !past && !isOutOfAvailability && "bg-red-500/20 text-red-500 cursor-not-allowed border border-red-500/20",
+                                        !past && !blocked && !isOutOfAvailability && "hover:bg-primary/20 bg-secondary/30 font-medium text-foreground",
                                         past && "line-through",
                                         current && !isSelected && !isInRange && !blocked && "ring-2 ring-primary ring-offset-1 font-bold bg-primary/10",
                                         isSelected && "bg-primary text-primary-foreground hover:bg-primary/90",
                                         isInRange && "bg-primary/20"
                                     )}
-                                    title={blocked ? "Booked" : past ? "Past Date" : "Available"}
+                                    title={blocked ? "Booked" : (past || isOutOfAvailability) ? "Unavailable" : "Available"}
                                 >
                                     {day}
                                 </button>

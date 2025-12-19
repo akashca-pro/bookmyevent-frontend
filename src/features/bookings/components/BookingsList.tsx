@@ -8,11 +8,8 @@ import { BookingFilters } from "./BookingFilters";
 
 export const BookingsList = () => {
     const [page, setPage] = useState(1);
-    const [status, setStatus] = useState("all");
+    const [status, setStatus] = useState("confirmed");
     const [sort, setSort] = useState(JSON.stringify({ createdAt: -1 }));
-
-    // Simple debounce via timeout or just pass directly if low traffic.
-    // For now, passing directly. If performance issue, I will refactor.
 
     const limit = 6;
     const { data, isLoading, isError } = useBookings({

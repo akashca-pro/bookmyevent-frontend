@@ -18,7 +18,7 @@ export default function ExplorePage() {
             : new Date(),
         endDate: searchParams.get("endDate")
             ? new Date(searchParams.get("endDate")!)
-            : new Date(new Date().setDate(new Date().getDate() + 7)),
+            : new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
         category: searchParams.get("category") || undefined,
         district: searchParams.get("district") || undefined,
         municipality: searchParams.get("municipality") || undefined,
