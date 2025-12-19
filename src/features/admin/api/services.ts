@@ -17,7 +17,8 @@ export const fetchServices = async (params: GetServicesParams): Promise<Paginati
     if (params.limit) searchParams.set("limit", params.limit.toString());
     if (params.search) searchParams.set("search", params.search);
     if (params.category) searchParams.set("category", params.category);
-    if (params.city) searchParams.set("city", params.city);
+    if (params.district) searchParams.set("district", params.district);
+    if (params.municipality) searchParams.set("municipality", params.municipality);
     if (params.minPrice) searchParams.set("minPrice", params.minPrice.toString());
     if (params.maxPrice) searchParams.set("maxPrice", params.maxPrice.toString());
     if (params.adminId) searchParams.set("adminId", params.adminId);

@@ -13,7 +13,8 @@ export interface GetAvailableServicesQuery {
     category?: string;
     minPrice?: number;
     maxPrice?: number;
-    city?: string;
+    district?: string;
+    municipality?: string;
     adminId?: string;
     sort?: string;
 }
@@ -29,7 +30,8 @@ export interface GetAvailableServicesResponseDTO {
     };
     pricePerDay: number;
     thumbnail: string | null;
-    city: string;
+    district: string;
+    municipality: string;
 }
 
 
@@ -55,8 +57,9 @@ export interface ServiceDetailsDTO extends GetAvailableServicesResponseDTO {
     description: string;
     location: {
         address: string;
-        city: string;
-        zip: string;
+        district: string;
+        municipality: string;
+        pincode: string;
     };
     contact: {
         phone: string;

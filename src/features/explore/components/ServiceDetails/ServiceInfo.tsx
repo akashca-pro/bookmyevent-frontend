@@ -30,7 +30,7 @@ export function ServiceInfo({ service }: ServiceInfoProps) {
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm text-muted-foreground">
                         <p>{service.location.address}</p>
-                        <p>{service.location.city}, {service.location.zip}</p>
+                        <p>{service.location.district}, {service.location.municipality}, {service.location.pincode}</p>
                     </CardContent>
                 </Card>
 

@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { CreateServiceFuncArgs } from "../../types";
 import { Loader2 } from "lucide-react";
+import { DistrictSelect, MunicipalitySelect } from "@/components/shared/LocationSelectors";
 
 interface CreateServiceModalProps {
     open: boolean;
@@ -42,7 +43,8 @@ export function CreateServiceModal({ open, onOpenChange }: CreateServiceModalPro
             category: "",
             pricePerDay: 1,
             location: {
-                city: "",
+                district: "",
+                municipality: "",
                 address: "",
                 pincode: "",
             },
@@ -152,29 +154,40 @@ export function CreateServiceModal({ open, onOpenChange }: CreateServiceModalPro
                             {/* Location */}
                             <div className="space-y-4">
                                 <h4 className="font-medium border-b pb-2">Location</h4>
-                                <FormField
-                                    control={form.control}
-                                    name="location.city"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>City</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="City" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="Mumbai">Mumbai</SelectItem>
-                                                    <SelectItem value="Delhi">Delhi</SelectItem>
-                                                    <SelectItem value="Bangalore">Bangalore</SelectItem>
-                                                    <SelectItem value="Hyderabad">Hyderabad</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="location.district"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <DistrictSelect
+                                                    value={field.value}
+                                                    onValueChange={(val) => {
+                                                        field.onChange(val);
+                                                        form.setValue("location.municipality", ""); // Reset municipality
+                                                    }}
+                                                    error={form.formState.errors.location?.district?.message}
+                                                />
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="location.municipality"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <MunicipalitySelect
+                                                    district={form.watch("location.district")}
+                                                    value={field.value}
+                                                    onValueChange={field.onChange}
+                                                    error={form.formState.errors.location?.municipality?.message}
+                                                />
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                                 <FormField
                                     control={form.control}
                                     name="location.address"

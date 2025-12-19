@@ -40,7 +40,7 @@ export function ServiceHeader({ service }: ServiceHeaderProps) {
                     <h1 className="text-3xl font-bold tracking-tight text-foreground">{service.title}</h1>
                     <div className="flex items-center text-muted-foreground">
                         <MapPin className="mr-1.5 h-4 w-4" />
-                        <span>{service.location.city}</span>
+                        <span>{service.location.district}, {service.location.municipality}</span>
                     </div>
                 </div>
                 <div className="flex flex-col items-end gap-1">

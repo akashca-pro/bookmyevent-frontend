@@ -11,7 +11,8 @@ export const GetAvailableServicesQuerySchema = z.object({
     category: z.string().optional(),
     minPrice: z.coerce.number().int().optional(),
     maxPrice: z.coerce.number().int().optional(),
-    city: z.string().optional(),
+    district: z.string().optional(),
+    municipality: z.string().optional(),
     adminId: z.string().optional(),
     limit: z.coerce.number().int(),
     sort: z.string().optional(),
@@ -24,13 +25,15 @@ export interface GetAvailableServicesResponseDTO {
     id: string; // Added ID for keys
     title: string;
     category: {
-        id: string;
+        _id?: string;
+        id?: string;
         name: string;
         slug: string;
     };
     pricePerDay: number;
     thumbnail: string | null;
-    city: string; // Helpful for filtering context
+    district: string;
+    municipality: string;
 }
 
 export interface PaginationDTO<T> {

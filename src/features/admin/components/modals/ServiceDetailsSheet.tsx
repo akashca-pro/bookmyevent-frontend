@@ -82,7 +82,8 @@ export function ServiceDetailsSheet({ service, open, onOpenChange }: ServiceDeta
                         <h4 className="font-semibold border-b pb-1 mb-2">Location</h4>
                         <div className="space-y-1 text-sm">
                             <p>{service.location?.address}</p>
-                            <p>{service.location?.city}, {service.location?.pincode}</p>
+                            <p>{service.location?.district}, {service.location?.municipality}</p>
+                            <p>{service.location?.pincode}</p>
                         </div>
                     </div>
 

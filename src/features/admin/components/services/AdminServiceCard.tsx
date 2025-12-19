@@ -51,7 +51,7 @@ export function AdminServiceCard({ service, onEdit, onView }: AdminServiceCardPr
 
                 <div className="flex items-center text-sm text-muted-foreground mb-2">
                     <MapPin className="h-3 w-3 mr-1" />
-                    <span className="truncate">{service.location?.city}</span>
+                    <span className="truncate">{service.location?.district}, {service.location?.municipality}</span>
                 </div>
 
                 <div className="flex items-center font-medium text-foreground">

@@ -1,7 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DistrictSelect, MunicipalitySelect } from "@/components/shared/LocationSelectors";
 import { Label } from "@/components/ui/label";
+
 import { useSearchParams } from "react-router-dom";
 import { useCategoriesOptions } from "@/hooks/useCategoriesOptions";
 
@@ -102,23 +104,37 @@ export function ServiceFilters() {
                     </Select>
                 </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Select
-                        value={searchParams.get("city") || ""}
-                        onValueChange={(val) => updateParam("city", val === "all" ? "" : val)}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select City" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Cities</SelectItem>
-                            <SelectItem value="Mumbai">Mumbai</SelectItem>
-                            <SelectItem value="Delhi">Delhi</SelectItem>
-                            <SelectItem value="Bangalore">Bangalore</SelectItem>
-                            <SelectItem value="Hyderabad">Hyderabad</SelectItem>
-                        </SelectContent>
-                    </Select>
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label>District</Label>
+                        <DistrictSelect
+                            label=""
+                            value={searchParams.get("district") || ""}
+                            onValueChange={(val) => {
+                                setSearchParams(prev => {
+                                    const next = new URLSearchParams(prev);
+                                    if (val && val !== "all") {
+                                        next.set("district", val);
+                                    } else {
+                                        next.delete("district");
+                                    }
+                                    next.delete("municipality"); // Reset municipality
+                                    next.set("page", "1");
+                                    return next;
+                                });
+                            }}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Municipality</Label>
+                        <MunicipalitySelect
+                            label=""
+                            district={searchParams.get("district") || ""}
+                            value={searchParams.get("municipality") || ""}
+                            onValueChange={(val) => updateParam("municipality", val === "all" ? "" : val)}
+                            disabled={!searchParams.get("district")}
+                        />
+                    </div>
                 </div>
 
                 <div className="space-y-2">

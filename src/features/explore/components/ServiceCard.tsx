@@ -50,7 +50,7 @@ export function ServiceCard({ service, index = 0 }: ServiceCardProps) {
                             {service.title}
                         </h3>
                         <p className="text-sm text-muted-foreground mt-1">
-                            {service.city ? `${service.city}` : "Location available upon request"}
+                            {service.district} {service.municipality ? `, ${service.municipality}` : ""}
                         </p>
                     </CardContent>
 

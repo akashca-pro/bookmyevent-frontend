@@ -6,7 +6,8 @@ export type UpdateServiceFuncArgs = z.infer<typeof UpdateServiceSchema>;
 
 export interface ILocation {
     address: string;
-    city: string;
+    district: string;
+    municipality: string;
     pincode: string;
 }
 
@@ -56,7 +57,8 @@ export interface GetServicesParams {
     limit?: number;
     search?: string;
     category?: string;
-    city?: string;
+    district?: string;
+    municipality?: string;
     minPrice?: number;
     maxPrice?: number;
     adminId?: string;

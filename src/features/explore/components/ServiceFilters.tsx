@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { GetAvailableServicesQuery } from "../api/explore";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useCategoriesOptions } from "@/hooks/useCategoriesOptions";
+import { DistrictSelect, MunicipalitySelect } from "@/components/shared/LocationSelectors";
 
 interface ServiceFiltersProps {
     filters: Partial<GetAvailableServicesQuery>;
@@ -14,17 +15,7 @@ interface ServiceFiltersProps {
 
 
 
-const CITIES = [
-    "Mumbai",
-    "Delhi",
-    "Bangalore",
-    "Hyderabad",
-    "Chennai",
-    "Kolkata",
-    "Pune",
-    "Jaipur",
-    "Goa",
-];
+
 
 export function ServiceFilters({ filters, onFilterChange, onClearFilters }: ServiceFiltersProps) {
     const { data: categories } = useCategoriesOptions();
@@ -90,27 +81,31 @@ export function ServiceFilters({ filters, onFilterChange, onClearFilters }: Serv
                         </Select>
                     </div>
 
-                    {/* City */}
+                    {/* District */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">City</label>
-                        <Select
-                            value={filters.city || "all"}
+                        <label className="text-sm font-medium">District</label>
+                        <DistrictSelect
+                            value={filters.district || ""}
+                            onValueChange={(val) => {
+                                onFilterChange({
+                                    district: val === "all" ? undefined : val,
+                                    municipality: undefined // Reset municipality on district change
+                                });
+                            }}
+                        />
+                    </div>
+
+                    {/* Municipality */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Municipality</label>
+                        <MunicipalitySelect
+                            district={filters.district || ""}
+                            value={filters.municipality || ""}
                             onValueChange={(val) =>
-                                onFilterChange({ city: val === "all" ? undefined : val })
+                                onFilterChange({ municipality: val === "all" ? undefined : val })
                             }
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="All Cities" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Cities</SelectItem>
-                                {CITIES.map((city) => (
-                                    <SelectItem key={city} value={city}>
-                                        {city}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                            disabled={!filters.district}
+                        />
                     </div>
 
                     {/* Date Range */}

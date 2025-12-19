@@ -8,7 +8,8 @@ const StrictString = (name: string) =>
 
 export const LocationSchema = z.object({
     address: z.string().min(1, "Address is required"),
-    city: z.string().min(1, "City is required"),
+    district: z.string().min(1, "District is required"),
+    municipality: z.string().min(1, "Municipality is required"),
     pincode: z.string().min(1, "Pincode is required"),
 });
 
@@ -59,7 +60,8 @@ export const GetServicesQuerySchema = z.object({
     category: z.string().optional(), // StrictString().optional() implies non-empty if present
     minPrice: z.coerce.number().int().optional(),
     maxPrice: z.coerce.number().int().optional(),
-    city: z.string().optional(),
+    district: z.string().optional(),
+    municipality: z.string().optional(),
     adminId: z.string().optional(),
     limit: z.coerce
         .number()

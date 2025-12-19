@@ -20,7 +20,8 @@ export function ServicesTab() {
         limit,
         search: searchParams.get("search") || undefined,
         category: searchParams.get("category") || undefined,
-        city: searchParams.get("city") || undefined,
+        district: searchParams.get("district") || undefined,
+        municipality: searchParams.get("municipality") || undefined,
         minPrice: searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : undefined,
         maxPrice: searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : undefined,
     });
