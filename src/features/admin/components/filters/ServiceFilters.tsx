@@ -38,6 +38,11 @@ export function ServiceFilters() {
 
     const updateParam = useCallback((key: string, value: string) => {
         setSearchParams(prev => {
+            const currentVal = prev.get(key) || "";
+            if (currentVal === value) {
+                return prev;
+            }
+
             const next = new URLSearchParams(prev);
             if (value) {
                 next.set(key, value);

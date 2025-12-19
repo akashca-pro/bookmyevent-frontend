@@ -11,6 +11,7 @@ import ExplorePage from "./features/explore/components/ExplorePage";
 import { ServiceDetailsPage } from "./features/explore/pages/ServiceDetailsPage";
 
 import AdminDashboardPage from "./features/admin/pages/AdminDashboardPage";
+import ServiceBookingsPage from "./features/admin/pages/ServiceBookingsPage";
 import { AdminProtectedRoute } from "./features/auth/components/AdminProtectedRoute";
 import { UserProtectedRoute } from "./features/auth/components/UserProtectedRoute";
 import { PublicOnlyRoute } from "./features/auth/components/PublicOnlyRoute";
@@ -55,6 +56,10 @@ export const router = createBrowserRouter([
                     {
                         path: "admin/profile",
                         element: <ProfilePage />,
+                    },
+                    {
+                        path: "admin/services/:id/bookings",
+                        element: <ServiceBookingsPage />,
                     },
                 ],
             },

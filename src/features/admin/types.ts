@@ -81,3 +81,19 @@ export interface UpdateCategoryDTO {
     isActive?: boolean;
     isArchived?: boolean;
 }
+
+export interface GetBookingsByServiceResponseDTO {
+    user: {
+        name: string;
+        email: string;
+        avatar: string | null;
+    };
+    bookingDetails: {
+        startDate: Date | string;
+        endDate: Date | string;
+        totalPrice: number;
+        status: string;
+        createdAt: Date | string;
+        updatedAt: Date | string;
+    };
+}

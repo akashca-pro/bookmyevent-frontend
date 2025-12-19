@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAdminServices } from "../../hooks/useAdminServices";
 import { ServiceFilters } from "../filters/ServiceFilters";
 import { ServiceList } from "../services/ServiceList";
@@ -12,6 +12,7 @@ import type { Service } from "../../types";
 
 export function ServicesTab() {
     const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate();
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
 
@@ -39,6 +40,10 @@ export function ServicesTab() {
     const handleView = (service: Service) => {
         setSelectedService(service);
         setIsDetailsOpen(true);
+    };
+
+    const handleViewBookings = (service: Service) => {
+        navigate(`/admin/services/${service.id}/bookings`);
     };
 
     const setPage = (newPage: number) => {
@@ -77,6 +82,7 @@ export function ServicesTab() {
                         isLoading={isLoading}
                         onEdit={handleEdit}
                         onView={handleView}
+                        onViewBookings={handleViewBookings}
                         page={page}
                         setPage={setPage}
                     />

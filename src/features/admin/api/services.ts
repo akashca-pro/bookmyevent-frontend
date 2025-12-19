@@ -6,7 +6,8 @@ import type {
     GetServicesParams,
     ServiceMetrics,
     CreateServiceFuncArgs,
-    UpdateServiceFuncArgs
+    UpdateServiceFuncArgs,
+    GetBookingsByServiceResponseDTO
 } from "../types";
 
 const BASE_PATH = "/services";
@@ -84,4 +85,14 @@ export const deleteService = async (id: string): Promise<void> => {
     return apiClient<void>(`${BASE_PATH}/${id}`, {
         method: "DELETE",
     });
+};
+
+export const fetchServiceBookings = async (serviceId: string, params: { page?: number; limit?: number; sort?: string }): Promise<PaginationDTO<GetBookingsByServiceResponseDTO>> => {
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.set("page", params.page.toString());
+    if (params.limit) searchParams.set("limit", params.limit.toString());
+    if (params.sort) searchParams.set("sort", params.sort);
+
+    const res = await apiClient<ApiResponse<PaginationDTO<GetBookingsByServiceResponseDTO>>>(`${BASE_PATH}/${serviceId}/bookings?${searchParams.toString()}`);
+    return res.data;
 };

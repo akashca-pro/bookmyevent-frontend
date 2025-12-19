@@ -9,11 +9,12 @@ interface ServiceListProps {
     isLoading: boolean;
     onEdit: (service: Service) => void;
     onView: (service: Service) => void;
+    onViewBookings: (service: Service) => void;
     page: number;
     setPage: (page: number) => void;
 }
 
-export function ServiceList({ data, isLoading, onEdit, onView, page, setPage }: ServiceListProps) {
+export function ServiceList({ data, isLoading, onEdit, onView, onViewBookings, page, setPage }: ServiceListProps) {
     if (isLoading) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -52,6 +53,7 @@ export function ServiceList({ data, isLoading, onEdit, onView, page, setPage }: 
                         service={service}
                         onEdit={onEdit}
                         onView={onView}
+                        onViewBookings={onViewBookings}
                     />
                 ))}
             </div>

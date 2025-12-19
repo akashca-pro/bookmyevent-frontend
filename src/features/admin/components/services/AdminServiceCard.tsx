@@ -9,9 +9,10 @@ interface AdminServiceCardProps {
     service: Service;
     onEdit: (service: Service) => void;
     onView: (service: Service) => void;
+    onViewBookings: (service: Service) => void;
 }
 
-export function AdminServiceCard({ service, onEdit, onView }: AdminServiceCardProps) {
+export function AdminServiceCard({ service, onEdit, onView, onViewBookings }: AdminServiceCardProps) {
     const imageUrl = getCloudinaryUrl(service.thumbnail);
 
     return (
@@ -69,14 +70,18 @@ export function AdminServiceCard({ service, onEdit, onView }: AdminServiceCardPr
                 </div>
             </CardContent>
 
-            <CardFooter className="p-4 pt-0 grid grid-cols-2 gap-2 mt-auto">
-                <Button variant="outline" size="sm" onClick={() => onView(service)} className="w-full">
-                    <Eye className="h-3 w-3 mr-2" />
-                    Details
+            <CardFooter className="p-4 pt-0 grid grid-cols-3 gap-2 mt-auto">
+                <Button variant="outline" size="sm" onClick={() => onView(service)} className="w-full px-0">
+                    <Eye className="h-3 w-3 sm:mr-2" />
+                    <span className="hidden sm:inline">Details</span>
                 </Button>
-                <Button size="sm" onClick={() => onEdit(service)} className="w-full">
-                    <Edit2 className="h-3 w-3 mr-2" />
-                    Edit
+                <Button variant="outline" size="sm" onClick={() => onViewBookings(service)} className="w-full px-0">
+                    <IndianRupee className="h-3 w-3 sm:mr-2" />
+                    <span className="hidden sm:inline">Bookings</span>
+                </Button>
+                <Button size="sm" onClick={() => onEdit(service)} className="w-full px-0">
+                    <Edit2 className="h-3 w-3 sm:mr-2" />
+                    <span className="hidden sm:inline">Edit</span>
                 </Button>
             </CardFooter>
         </Card>
