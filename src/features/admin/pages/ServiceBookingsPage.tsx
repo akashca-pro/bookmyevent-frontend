@@ -10,11 +10,14 @@ import { ArrowLeft, IndianRupee, CalendarDays, User } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BookingFilters } from "@/features/bookings/components/BookingFilters";
 
 export default function ServiceBookingsPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [page, setPage] = useState(1);
+    const [status, setStatus] = useState("all");
+    const [sort, setSort] = useState(JSON.stringify({ "createdAt": -1 }));
     const limit = 10;
 
     // Fetch service details for context
@@ -26,8 +29,8 @@ export default function ServiceBookingsPage() {
 
     // Fetch bookings
     const { data: bookingsData, isLoading: isBookingsLoading } = useQuery({
-        queryKey: ["service-bookings", id, page],
-        queryFn: () => fetchServiceBookings(id!, { page, limit, sort: JSON.stringify({ "bookingDetails.createdAt": -1 }) }),
+        queryKey: ["service-bookings", id, page, status, sort],
+        queryFn: () => fetchServiceBookings(id!, { page, limit, sort, status }),
         enabled: !!id
     });
 
@@ -85,11 +88,24 @@ export default function ServiceBookingsPage() {
 
             {/* Content Section */}
             <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle>All Bookings</CardTitle>
-                    <CardDescription>
-                        View and manage all booking requests for this service.
-                    </CardDescription>
+                <CardHeader className="flex flex-col md:flex-row md:items-start md:justify-between space-y-4 md:space-y-0 pb-6">
+                    <div className="space-y-1.5">
+                        <CardTitle>All Bookings</CardTitle>
+                        <CardDescription>
+                            View and manage all booking requests for this service.
+                        </CardDescription>
+                    </div>
+                    <BookingFilters
+                        status={status}
+                        sort={sort}
+                        onStatusChange={(v) => { setStatus(v); setPage(1); }}
+                        onSortChange={(v) => { setSort(v); setPage(1); }}
+                        onClearFilters={() => {
+                            setStatus("all");
+                            setSort(JSON.stringify({ "createdAt": -1 }));
+                            setPage(1);
+                        }}
+                    />
                 </CardHeader>
                 <CardContent>
                     {!bookings.length ? (

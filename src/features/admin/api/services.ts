@@ -30,7 +30,8 @@ export const fetchServices = async (params: GetServicesParams): Promise<Paginati
 };
 
 export const getService = async (id: string): Promise<Service> => {
-    return apiClient<Service>(`${BASE_PATH}/${id}`);
+    const res = await apiClient<ApiResponse<Service>>(`${BASE_PATH}/${id}`);
+    return res.data;
 };
 
 export const fetchServiceMetrics = async (): Promise<ServiceMetrics> => {
@@ -87,11 +88,12 @@ export const deleteService = async (id: string): Promise<void> => {
     });
 };
 
-export const fetchServiceBookings = async (serviceId: string, params: { page?: number; limit?: number; sort?: string }): Promise<PaginationDTO<GetBookingsByServiceResponseDTO>> => {
+export const fetchServiceBookings = async (serviceId: string, params: { page?: number; limit?: number; sort?: string; status?: string }): Promise<PaginationDTO<GetBookingsByServiceResponseDTO>> => {
     const searchParams = new URLSearchParams();
     if (params.page) searchParams.set("page", params.page.toString());
     if (params.limit) searchParams.set("limit", params.limit.toString());
     if (params.sort) searchParams.set("sort", params.sort);
+    if (params.status && params.status !== "all") searchParams.set("status", params.status);
 
     const res = await apiClient<ApiResponse<PaginationDTO<GetBookingsByServiceResponseDTO>>>(`${BASE_PATH}/${serviceId}/bookings?${searchParams.toString()}`);
     return res.data;
