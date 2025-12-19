@@ -5,13 +5,16 @@ import { formatDate } from "date-fns";
 import { Calendar, IndianRupee } from "lucide-react";
 import { getCloudinaryUrl } from "@/utils/cloudinaryImageUrl";
 
+import { useNavigate } from "react-router-dom";
+
 interface BookingCardProps {
     booking: UserBooking;
 }
 
 export const BookingCard = ({ booking }: BookingCardProps) => {
+    const navigate = useNavigate();
     const { bookingDetails, serviceDetails } = booking;
-    const { title, description, thumbnail } = serviceDetails;
+    const { _id, title, description, thumbnail } = serviceDetails;
     const { startDate, endDate, totalPrice, status } = bookingDetails;
 
     const getStatusColor = (status: string) => {
@@ -32,7 +35,10 @@ export const BookingCard = ({ booking }: BookingCardProps) => {
     };
 
     return (
-        <Card className="overflow-hidden bg-black/40 border-white/10 hover:border-neon-purple/50 transition-all duration-300 group hover:shadow-[0_0_20px_rgba(180,41,255,0.15)] flex flex-col h-full">
+        <Card
+            onClick={() => navigate(`/services/${_id}`)}
+            className="cursor-pointer overflow-hidden bg-black/40 border-white/10 hover:border-neon-purple/50 transition-all duration-300 group hover:shadow-[0_0_20px_rgba(180,41,255,0.15)] flex flex-col h-full"
+        >
             <div className="relative h-48 overflow-hidden">
                 {thumbnail ? (
                     <img

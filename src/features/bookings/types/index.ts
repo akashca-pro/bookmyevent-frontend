@@ -22,10 +22,6 @@ export const GetBookingsQuerySchema = z.object({
         .string()
         .trim()
         .optional(),
-    search: z
-        .string()
-        .trim()
-        .optional(),
 });
 
 export type GetBookingsParams = z.infer<typeof GetBookingsQuerySchema>;

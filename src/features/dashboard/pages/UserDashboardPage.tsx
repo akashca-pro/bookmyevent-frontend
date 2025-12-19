@@ -15,10 +15,6 @@ export const UserDashboardPage = () => {
 
             {/* Upcoming Events Section (Placeholder/Reusable logic) */}
             <section>
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
-                    <span className="w-1 h-8 bg-neon-blue mr-3 rounded-full"></span>
-                    My Bookings
-                </h2>
                 <BookingsList />
             </section>
         </div>

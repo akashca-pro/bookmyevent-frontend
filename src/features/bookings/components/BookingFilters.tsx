@@ -1,40 +1,24 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 
 interface BookingFiltersProps {
-    search: string;
     status: string;
     sort: string;
-    onSearchChange: (value: string) => void;
     onStatusChange: (value: string) => void;
     onSortChange: (value: string) => void;
     onClearFilters: () => void;
 }
 
 export const BookingFilters = ({
-    search,
     status,
     sort,
-    onSearchChange,
     onStatusChange,
     onSortChange,
     onClearFilters
 }: BookingFiltersProps) => {
     return (
-        <div className="flex flex-col md:flex-row gap-4 mb-8 p-4 bg-white/5 border border-white/10 rounded-xl backdrop-blur-md">
-            {/* Search */}
-            <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                <Input
-                    placeholder="Search bookings..."
-                    value={search}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                    className="pl-10 bg-black/40 border-white/10 text-white placeholder:text-gray-500 focus:border-neon-purple focus-visible:ring-neon-purple/20"
-                />
-            </div>
-
+        <div className="flex w-fit flex-col md:flex-row gap-4 p-4 bg-white/5 border border-white/10 rounded-xl backdrop-blur-md items-center shadow-sm">
             {/* Filters Group */}
             <div className="flex gap-2">
                 {/* Status Filter */}
@@ -64,7 +48,7 @@ export const BookingFilters = ({
                     </SelectContent>
                 </Select>
 
-                {(search || status !== "all" || sort !== "-createdAt") && (
+                {(status !== "all" || sort !== JSON.stringify({ createdAt: -1 })) && (
                     <Button
                         variant="ghost"
                         size="icon"

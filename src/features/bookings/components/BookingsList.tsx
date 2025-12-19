@@ -10,9 +10,8 @@ export const BookingsList = () => {
     const [page, setPage] = useState(1);
     const [status, setStatus] = useState("all");
     const [sort, setSort] = useState(JSON.stringify({ createdAt: -1 }));
-    const [search, setSearch] = useState("");
 
-    // Simple debounce via timeout or just pass directly if low traffic. 
+    // Simple debounce via timeout or just pass directly if low traffic.
     // For now, passing directly. If performance issue, I will refactor.
 
     const limit = 6;
@@ -21,13 +20,7 @@ export const BookingsList = () => {
         limit,
         status: status === "all" ? undefined : status,
         sort,
-        search: search || undefined
     });
-
-    const handleSearchChange = (value: string) => {
-        setSearch(value);
-        setPage(1); // Reset page on filter change
-    };
 
     const handleStatusChange = (value: string) => {
         setStatus(value);
@@ -40,7 +33,6 @@ export const BookingsList = () => {
     };
 
     const clearFilters = () => {
-        setSearch("");
         setStatus("all");
         setSort(JSON.stringify({ createdAt: -1 }));
         setPage(1);
@@ -131,15 +123,19 @@ export const BookingsList = () => {
 
     return (
         <div className="space-y-6">
-            <BookingFilters
-                search={search}
-                status={status}
-                sort={sort}
-                onSearchChange={handleSearchChange}
-                onStatusChange={handleStatusChange}
-                onSortChange={handleSortChange}
-                onClearFilters={clearFilters}
-            />
+            <div className="flex flex-col md:flex-row justify-between items-end gap-4 mb-6">
+                <h2 className="text-2xl font-bold text-white flex items-center">
+                    <span className="w-1 h-8 bg-neon-blue mr-3 rounded-full"></span>
+                    My Bookings
+                </h2>
+                <BookingFilters
+                    status={status}
+                    sort={sort}
+                    onStatusChange={handleStatusChange}
+                    onSortChange={handleSortChange}
+                    onClearFilters={clearFilters}
+                />
+            </div>
             {renderContent()}
         </div>
     );

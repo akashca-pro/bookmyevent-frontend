@@ -10,7 +10,6 @@ export const fetchBookings = async (params: GetBookingsParams): Promise<Bookings
     if (params.skip) searchParams.set("skip", params.skip!.toString());
     if (params.sort) searchParams.set("sort", params.sort);
     if (params.status && params.status !== "all") searchParams.set("status", params.status);
-    if (params.search) searchParams.set("search", params.search);
 
     return apiClient<BookingsResponseDTO>(`${BASE_PATH}?${searchParams.toString()}`);
 };
