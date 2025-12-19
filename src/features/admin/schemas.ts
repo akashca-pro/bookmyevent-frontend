@@ -49,6 +49,7 @@ export const CreateServiceSchema = z.object({
 export const UpdateServiceSchema = CreateServiceSchema.partial().extend({
     isArchived: z.boolean().optional(),
     isActive: z.boolean().optional(),
+    deleteThumbnail: z.boolean().optional(),
 });
 
 export const GetServicesQuerySchema = z.object({

@@ -7,5 +7,6 @@ export const useBookings = (params: GetBookingsParams) => {
         queryKey: ["user-bookings", params],
         queryFn: () => fetchBookings(params),
         placeholderData: keepPreviousData,
+        refetchOnMount: "always",
     });
 };

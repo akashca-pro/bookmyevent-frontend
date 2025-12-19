@@ -55,9 +55,6 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
         };
     }, [objectUrl]);
 
-    // Derived state for display
-    const displayUrl = objectUrl || getCloudinaryUrl(service?.thumbnail);
-
     const form = useForm<UpdateServiceFuncArgs>({
         resolver: zodResolver(UpdateServiceSchema) as any,
         defaultValues: {
@@ -70,6 +67,9 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
         },
     });
 
+    const isDeleteThumbnail = form.watch("deleteThumbnail");
+    const displayUrl = objectUrl || (isDeleteThumbnail ? null : getCloudinaryUrl(service?.thumbnail));
+
     useEffect(() => {
         if (service) {
             form.reset({
@@ -81,6 +81,10 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
                 contact: service.contact,
                 isActive: service.isActive,
                 isArchived: service.isArchived,
+                availability: {
+                    from: new Date(service.availability.from),
+                    to: new Date(service.availability.to)
+                },
             });
             // Reset local file state when service changes
             setThumbnailFile(null);
@@ -108,6 +112,7 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             setThumbnailFile(file);
+            form.setValue("deleteThumbnail", false);
         }
     };
 
@@ -141,6 +146,24 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
                             />
                             <p className="text-xs text-muted-foreground">Recommended: 16:9 aspect ratio</p>
                         </div>
+                        {(displayUrl || thumbnailFile) && (
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => {
+                                    setThumbnailFile(null);
+                                    form.setValue("deleteThumbnail", true, { shouldDirty: true });
+                                    // If we are removing a file we just selected, we don't need to prevent display of original if we didn't mean to delete original
+                                    // BUT simplifed logic: if we click remove, we remove whatever is currently shown.
+                                    // If it was a new file, it clears new file.
+                                    // If it was original, it sets deleteThumbnail=true.
+                                    // To allow showing original again is complex, let's just assume remove means remove.
+                                }}
+                            >
+                                Remove
+                            </Button>
+                        )}
                     </div>
 
                     <Form {...form}>
@@ -212,6 +235,49 @@ export function EditServiceModal({ service, open, onOpenChange }: EditServiceMod
                                             </FormItem>
                                         )}
                                     />
+                                </div>
+
+                                {/* Availability */}
+                                <div className="space-y-4 md:col-span-2">
+                                    <h4 className="font-medium border-b pb-2">Availability</h4>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="availability.from"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Available From</FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            type="date"
+                                                            {...field}
+                                                            value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                                                            onChange={(e) => field.onChange(e.target.value)}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="availability.to"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Available To</FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            type="date"
+                                                            {...field}
+                                                            value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                                                            onChange={(e) => field.onChange(e.target.value)}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Status Toggles */}

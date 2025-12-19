@@ -63,6 +63,11 @@ export const updateService = async (id: string, data: UpdateServiceFuncArgs & { 
         }
     });
 
+    // Explicitly handle deleteThumbnail if true
+    if (data.deleteThumbnail) {
+        formData.append('deleteThumbnail', 'true');
+    }
+
     // Handle separate thumbnail if present
     if (data.thumbnail && data.thumbnail instanceof File) {
         // Already appended by loop if it was in 'data', but safety check

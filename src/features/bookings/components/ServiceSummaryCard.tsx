@@ -47,7 +47,7 @@ export function ServiceSummaryCard({ service }: ServiceSummaryCardProps) {
                     <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span>
-                            {service.location.address}, {service.location.city} - {service.location.pincode}
+                            {service.location.address}, {service.location.district}, {service.location.municipality} - {service.location.pincode}
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
