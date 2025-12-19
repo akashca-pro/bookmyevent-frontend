@@ -51,7 +51,24 @@ export interface Booking {
     serviceId?: string;
 }
 
-export type BookingsResponseDTO = PaginationDTO<Booking>;
+export interface UserBooking {
+    serviceDetails: {
+        _id: string;
+        title: string;
+        description: string;
+        thumbnail : string | null;
+    };
+    bookingDetails: {
+        startDate: string; // API returns strings
+        endDate: string;
+        totalPrice: number;
+        status: string;
+        createdAt: string;
+        updatedAt: string;
+    };
+}
+
+export type BookingsResponseDTO = PaginationDTO<UserBooking>;
 
 export const CreateBookingSchema = z.object({
     startDate: z.coerce.date()

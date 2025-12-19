@@ -1,11 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import type { Booking } from "../types";
+import type { UserBooking } from "../types";
 import { formatDate } from "date-fns";
-import { Calendar, Clock, DollarSign } from "lucide-react";
+import { Calendar, DollarSign } from "lucide-react";
+import { getCloudinaryUrl } from "@/utils/cloudinaryImageUrl";
 
 interface BookingCardProps {
-    booking: Booking;
+    booking: UserBooking;
 }
 
 export const BookingCard = ({ booking }: BookingCardProps) => {
@@ -35,7 +36,7 @@ export const BookingCard = ({ booking }: BookingCardProps) => {
             <div className="relative h-48 overflow-hidden">
                 {thumbnail ? (
                     <img
-                        src={thumbnail}
+                        src={getCloudinaryUrl(thumbnail)}
                         alt={title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
@@ -65,12 +66,9 @@ export const BookingCard = ({ booking }: BookingCardProps) => {
                 <div className="space-y-2 text-sm">
                     <div className="flex items-center text-gray-300">
                         <Calendar className="w-4 h-4 mr-2 text-neon-blue" />
-                        <span>{formatDate(new Date(startDate), "PPP")}</span>
+                        <span>{formatDate(new Date(startDate), "PPP")} - {formatDate(new Date(endDate), "PPP")}</span>
                     </div>
-                    <div className="flex items-center text-gray-300">
-                        <Clock className="w-4 h-4 mr-2 text-neon-blue" />
-                        <span>{formatDate(new Date(startDate), "p")} - {formatDate(new Date(endDate), "p")}</span>
-                    </div>
+                    {/* Removed the time-only clock line as it's redundant/incorrect if dates are the focus */}
                 </div>
             </CardContent>
 

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { MapPin, Phone, Mail } from "lucide-react";
 import type { Service } from "@/features/admin/types";
+import { getCloudinaryUrl } from "@/utils/cloudinaryImageUrl";
 
 interface ServiceSummaryCardProps {
     service: Service;
@@ -29,7 +30,7 @@ export function ServiceSummaryCard({ service }: ServiceSummaryCardProps) {
                 {service.thumbnail && (
                     <div className="aspect-video w-full overflow-hidden rounded-md border">
                         <img
-                            src={service.thumbnail}
+                            src={getCloudinaryUrl(service.thumbnail)}
                             alt={service.title}
                             className="h-full w-full object-cover"
                         />
