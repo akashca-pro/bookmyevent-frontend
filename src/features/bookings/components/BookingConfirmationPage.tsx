@@ -96,7 +96,7 @@ export function BookingConfirmationPage() {
                     </div>
                     <div className="flex flex-col gap-3 pt-4">
                         <Button className="w-full" asChild>
-                            <Link to="/bookings">My Bookings</Link>
+                            <Link to="/dashboard">My Bookings</Link>
                         </Button>
                         <Button variant="outline" className="w-full" asChild>
                             <Link to="/explore">Explore More</Link>
