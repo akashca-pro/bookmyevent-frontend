@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import type { UserBooking } from "../types";
 import { formatDate } from "date-fns";
-import { Calendar, DollarSign } from "lucide-react";
+import { Calendar, IndianRupee } from "lucide-react";
 import { getCloudinaryUrl } from "@/utils/cloudinaryImageUrl";
 
 interface BookingCardProps {
@@ -74,7 +74,7 @@ export const BookingCard = ({ booking }: BookingCardProps) => {
 
             <CardFooter className="p-4 pt-2 border-t border-white/5 flex justify-between items-center mt-auto">
                 <div className="flex items-center text-neon-green font-bold text-lg">
-                    <DollarSign className="w-4 h-4 mr-1" />
+                    <IndianRupee className="w-4 h-4 mr-1" />
                     {totalPrice.toLocaleString()}
                 </div>
 

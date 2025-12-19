@@ -18,6 +18,14 @@ export const GetBookingsQuerySchema = z.object({
         .string()
         .trim()
         .optional(),
+    status: z
+        .string()
+        .trim()
+        .optional(),
+    search: z
+        .string()
+        .trim()
+        .optional(),
 });
 
 export type GetBookingsParams = z.infer<typeof GetBookingsQuerySchema>;
@@ -56,7 +64,7 @@ export interface UserBooking {
         _id: string;
         title: string;
         description: string;
-        thumbnail : string | null;
+        thumbnail: string | null;
     };
     bookingDetails: {
         startDate: string; // API returns strings
