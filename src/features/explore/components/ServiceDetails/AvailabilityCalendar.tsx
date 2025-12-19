@@ -256,11 +256,11 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
                                     onClick={() => handleDateClick(day)}
                                     className={cn(
                                         "h-10 w-full flex items-center justify-center rounded-md text-sm transition-colors cursor-pointer",
-                                        (blocked || past)
-                                            ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-                                            : "hover:bg-primary/20 bg-secondary/30 font-medium text-foreground",
-                                        past && "line-through", // Optional visual cue for past dates specifically
-                                        current && !isSelected && !isInRange && "ring-2 ring-primary ring-offset-1 font-bold bg-primary/10",
+                                        past && "bg-muted text-muted-foreground cursor-not-allowed opacity-50",
+                                        blocked && !past && "bg-red-500/20 text-red-500 cursor-not-allowed border border-red-500/20",
+                                        !past && !blocked && "hover:bg-primary/20 bg-secondary/30 font-medium text-foreground",
+                                        past && "line-through",
+                                        current && !isSelected && !isInRange && !blocked && "ring-2 ring-primary ring-offset-1 font-bold bg-primary/10",
                                         isSelected && "bg-primary text-primary-foreground hover:bg-primary/90",
                                         isInRange && "bg-primary/20"
                                     )}
@@ -272,6 +272,22 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
                         })}
                     </div>
                 )}
+
+                {/* Legend */}
+                <div className="flex flex-wrap items-center justify-center gap-4 mt-4 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-sm bg-muted opacity-50"></div>
+                        <span>Unavailable</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-sm bg-red-500/20 border border-red-500/30"></div>
+                        <span>Booked</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-sm bg-secondary/30 border border-white/10"></div>
+                        <span>Available</span>
+                    </div>
+                </div>
 
                 <div className="mt-6 space-y-4">
                     <div className="flex justify-between text-sm">
