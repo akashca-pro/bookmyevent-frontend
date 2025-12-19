@@ -27,7 +27,7 @@ export function ServiceHeader({ service }: ServiceHeaderProps) {
                 {/* Overlay Badges */}
                 <div className="absolute top-4 right-4 flex gap-2">
                     <Badge variant="secondary" className="backdrop-blur-md bg-white/80 text-foreground">
-                        {service.category}
+                        {service.category.name}
                     </Badge>
                     {!service.isActive && (
                         <Badge variant="destructive">Inactive</Badge>

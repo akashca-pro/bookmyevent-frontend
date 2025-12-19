@@ -5,8 +5,8 @@ import { buildQueryString } from "@/utils/buildQueryString";
 const preUrl = "/services";
 
 export interface GetAvailableServicesQuery {
-    startDate: Date ;
-    endDate: Date ;
+    startDate: Date;
+    endDate: Date;
     limit: number;
 
     page: number;
@@ -20,9 +20,13 @@ export interface GetAvailableServicesQuery {
 
 export interface GetAvailableServicesResponseDTO {
     id: string;
-    _id? : string;
+    _id?: string;
     title: string;
-    category: string;
+    category: {
+        _id?: string;
+        name: string;
+        slug: string;
+    };
     pricePerDay: number;
     thumbnail: string | null;
     city: string;

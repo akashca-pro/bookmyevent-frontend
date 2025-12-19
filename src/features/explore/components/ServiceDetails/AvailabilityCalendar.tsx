@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getMonthlyAvailability, getServiceById } from "../../api/explore";
-import { createBooking } from "@/features/bookings/api/bookings";
+import { reserveBooking } from "@/features/bookings/api/bookings";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -31,18 +31,24 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
 
     const { mutate: book, isPending } = useMutation({
         mutationFn: (data: { startDate: Date; endDate: Date }) =>
-            createBooking(serviceId, data),
+            reserveBooking(serviceId, data),
         onSuccess: (booking) => {
             if (!service) return;
+            // Navigate to confirmation page
+            // The route might need to be created if not exists, but based on ServiceDetailsPage we can guess or use existing
+            // Since user asked for "after getting the booking details , go to confirmation page"
+            // We'll assume the route is /services/:serviceId/confirm-booking or similar.
+            // But wait, the user's prompt said "bookingRouter.post('/bookings/services/:serviceId/book/reserve', ...)"
+            // and then "after getting the booking details , go to confirmation page also pass the booking info and service details"
             navigate(`/services/${serviceId}/confirm-booking`, {
                 state: {
                     service: service,
-                    booking: booking // Pass the full booking object
+                    booking: booking
                 }
             });
         },
         onError: (err: any) => {
-            toast.error(err.message || "Failed to initiate booking");
+            toast.error(err.message || "Failed to reserve booking");
         }
     });
 

@@ -37,26 +37,29 @@ export interface ServiceDetails {
     thumbnail: string | null;
 }
 
-export type BookingsResponseDTO = PaginationDTO<Booking>;
 
 export interface Booking {
-    id: string; // or _id
+    id: string;
     _id?: string;
-    userId: string;
-    serviceId: string;
-    startDate: string; // Date strings from API
-    endDate: string;
-    totalPrice: number;
-    status: string; // or enum if known
-    createdAt: string;
-    updatedAt: string;
-    // Including nested details if API returns them populated, otherwise we might need them separate
-    // The user's snippet didn't show populated fields, but ConfirmationPage needs them.
-    // However, ConfirmationPage takes `service` from previous page state, so we might only need booking details here.
-    // Let's assume the response is exactly what user pasted.
-}
-
-export interface CreateBookingPayload {
     startDate: Date;
     endDate: Date;
+    totalPrice: number;
+    createdAt: Date;
+    updatedAt: Date;
+    status?: string;
+    userId?: string;
+    serviceId?: string;
 }
+
+export type BookingsResponseDTO = PaginationDTO<Booking>;
+
+export const CreateBookingSchema = z.object({
+    startDate: z.coerce.date()
+        .refine((d) => !isNaN(d.getTime()), "Start date must be a valid date"),
+    endDate: z.coerce.date()
+        .refine((d) => !isNaN(d.getTime()), "End date must be a valid date"),
+});
+
+export type CreateBookingPayload = z.infer<typeof CreateBookingSchema>;
+export type BookingResponse = Booking | null;
+

@@ -14,10 +14,17 @@ export const fetchBookings = async (params: GetBookingsParams): Promise<Bookings
 };
 
 // Response is a single Booking object
-export const createBooking = async (serviceId: string, data: CreateBookingPayload): Promise<Booking> => {
-    return apiClient(`${BASE_PATH}/services/${serviceId}/create`, { data });
+export const reserveBooking = async (serviceId: string, data: CreateBookingPayload): Promise<Booking> => {
+    const res = await apiClient<{ success: boolean; data: Booking }>(`${BASE_PATH}/services/${serviceId}/book/reserve`, { data });
+    return res.data;
 };
 
-export const confirmBooking = async (bookingId: string): Promise<Booking> => {
-    return apiClient(`${BASE_PATH}/${bookingId}/confirm`, { method: 'PUT' });
+export const confirmBooking = async (serviceId: string, bookingId: string): Promise<Booking> => {
+    const res = await apiClient<{ success: boolean; data: Booking }>(`${BASE_PATH}/services/${serviceId}/book/${bookingId}/confirm`, { method: 'POST' });
+    return res.data;
+};
+
+// Keeping this for backward compatibility if needed, but the new flow uses reserveBooking
+export const createBooking = async (serviceId: string, data: CreateBookingPayload): Promise<Booking> => {
+    return reserveBooking(serviceId, data);
 };
