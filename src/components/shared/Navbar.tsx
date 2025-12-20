@@ -5,6 +5,7 @@ import { NeonButton } from "./NeonButton";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/hooks/useAppSelector";
@@ -28,6 +29,7 @@ export const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
+    const queryClient = useQueryClient();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
     // Determine if we should hide navbar elements, e.g. on login page if desired, 
@@ -60,6 +62,7 @@ export const Navbar = () => {
         try {
             await logoutApi();
             dispatch(logoutAction());
+            queryClient.invalidateQueries();
             toast.success("Logged out successfully");
             navigate("/login");
         } catch (error) {
