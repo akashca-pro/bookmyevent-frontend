@@ -63,7 +63,7 @@ export const Navbar = () => {
         try {
             await logoutApi();
             dispatch(logoutAction());
-            queryClient.invalidateQueries();
+            queryClient.clear();
             destroyCookie(null, 'accessToken');
             toast.success("Logged out successfully");
             navigate("/login");
