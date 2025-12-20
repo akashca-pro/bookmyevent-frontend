@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { cn } from "../../lib/utils";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { destroyCookie } from "nookies";
 
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/hooks/useAppSelector";
@@ -63,12 +64,14 @@ export const Navbar = () => {
             await logoutApi();
             dispatch(logoutAction());
             queryClient.invalidateQueries();
+            destroyCookie(null, 'accessToken');
             toast.success("Logged out successfully");
             navigate("/login");
         } catch (error) {
             console.error("Logout failed:", error);
             // Even if API fails, we should probably clear client state
             dispatch(logoutAction());
+            destroyCookie(null, 'accessToken');
             navigate("/login");
         }
     };
