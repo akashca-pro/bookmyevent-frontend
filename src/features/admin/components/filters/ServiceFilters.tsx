@@ -10,19 +10,7 @@ import { useCategoriesOptions } from "@/hooks/useCategoriesOptions";
 import { useEffect, useState, useCallback } from "react";
 import { X } from "lucide-react";
 
-// Fallback if useDebounce doesn't exist in hooks
-function useDebounceValue<T>(value: T, delay: number): T {
-    const [debouncedValue, setDebouncedValue] = useState(value);
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delay);
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [value, delay]);
-    return debouncedValue;
-}
+
 
 export function ServiceFilters() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -32,32 +20,88 @@ export function ServiceFilters() {
     const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
     const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
 
-    const debouncedSearch = useDebounceValue(search, 500);
-    const debouncedMinPrice = useDebounceValue(minPrice, 500);
-    const debouncedMaxPrice = useDebounceValue(maxPrice, 500);
+    // Debounce search update to URL
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setSearchParams(prev => {
+                const currentSearch = prev.get("search") || "";
+                if (currentSearch === search) return prev;
+
+                const next = new URLSearchParams(prev);
+                if (search) {
+                    next.set("search", search);
+                } else {
+                    next.delete("search");
+                }
+                next.set("page", "1");
+                return next;
+            });
+        }, 500);
+
+        return () => clearTimeout(handler);
+    }, [search, setSearchParams]);
+
+    // Handle other filters directly without extra debounce (Assuming inputs are already distinct or don't need debounce like select)
+    // For price range, we do need separate debounce or handling. 
+    // Let's use the local state + effect pattern for prices as well.
+
+    const [debouncedMinPrice, setDebouncedMinPrice] = useState(minPrice);
+    const [debouncedMaxPrice, setDebouncedMaxPrice] = useState(maxPrice);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedMinPrice(minPrice);
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [minPrice]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedMaxPrice(maxPrice);
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [maxPrice]);
+
+    useEffect(() => {
+        setSearchParams(prev => {
+            const current = prev.get("minPrice") || "";
+            if (current === debouncedMinPrice) return prev;
+            const next = new URLSearchParams(prev);
+            if (debouncedMinPrice) next.set("minPrice", debouncedMinPrice);
+            else next.delete("minPrice");
+            next.set("page", "1");
+            return next;
+        });
+    }, [debouncedMinPrice, setSearchParams]);
+
+    useEffect(() => {
+        setSearchParams(prev => {
+            const current = prev.get("maxPrice") || "";
+            if (current === debouncedMaxPrice) return prev;
+            const next = new URLSearchParams(prev);
+            if (debouncedMaxPrice) next.set("maxPrice", debouncedMaxPrice);
+            else next.delete("maxPrice");
+            next.set("page", "1");
+            return next;
+        });
+    }, [debouncedMaxPrice, setSearchParams]);
 
     const updateParam = useCallback((key: string, value: string) => {
         setSearchParams(prev => {
             const currentVal = prev.get(key) || "";
-            if (currentVal === value) {
-                return prev;
-            }
+            if (currentVal === value) return prev;
 
             const next = new URLSearchParams(prev);
-            if (value) {
+            if (value && value !== "all") {
                 next.set(key, value);
             } else {
                 next.delete(key);
             }
-            // Reset page on filter change
+            if (key === "district") next.delete("municipality");
             next.set("page", "1");
             return next;
         });
     }, [setSearchParams]);
-
-    useEffect(() => updateParam("search", debouncedSearch), [debouncedSearch, updateParam]);
-    useEffect(() => updateParam("minPrice", debouncedMinPrice), [debouncedMinPrice, updateParam]);
-    useEffect(() => updateParam("maxPrice", debouncedMaxPrice), [debouncedMaxPrice, updateParam]);
 
     const handleClear = () => {
         setSearch("");
