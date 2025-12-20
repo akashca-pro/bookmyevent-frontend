@@ -1,12 +1,18 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 
-export const Logo = ({ className }: { className?: string }) => {
+interface LogoProps {
+    className?: string;
+}
+
+const LogoComponent = ({ className }: LogoProps) => {
     return (
         <div className={`flex items-center gap-2 ${className}`}>
             <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="relative w-8 h-8 flex items-center justify-center"
+                className="relative w-8 h-8 flex items-center justify-center will-change-transform"
+                style={{ transform: "translateZ(0)" }}
             >
                 <div className="absolute inset-0 border-2 border-neon-blue rounded-full border-t-transparent" />
                 <div className="absolute inset-1 border-2 border-neon-purple rounded-full border-b-transparent" />
@@ -17,3 +23,5 @@ export const Logo = ({ className }: { className?: string }) => {
         </div>
     );
 };
+
+export const Logo = memo(LogoComponent);

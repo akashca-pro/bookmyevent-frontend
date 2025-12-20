@@ -1,42 +1,41 @@
+import { memo, useCallback, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Navbar } from "../../components/shared/Navbar";
 import { ThemeBackground } from "../../components/shared/ThemeBackground";
 import { Toaster } from "sonner";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-
-import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { getCurrentUser } from "../auth/api/auth";
 import { loginSuccess, logout } from "@/store/slices/auth.slice";
 import { Loader2 } from "lucide-react";
 
-export const RootLayout = () => {
+const RootLayoutComponent = () => {
     const dispatch = useAppDispatch();
     const { isAuthenticated } = useAppSelector((state) => state.auth);
     const [isChecking, setIsChecking] = useState(!isAuthenticated);
 
-    useEffect(() => {
-        const checkSession = async () => {
-            if (!isAuthenticated) {
-                try {
-                    const response = await getCurrentUser();
-                    if (response.success && response.data) {
-                        dispatch(loginSuccess(response.data));
-                    }
-                } catch {
-                    dispatch(logout());
-                } finally {
-                    setIsChecking(false);
+    const checkSession = useCallback(async () => {
+        if (!isAuthenticated) {
+            try {
+                const response = await getCurrentUser();
+                if (response.success && response.data) {
+                    dispatch(loginSuccess(response.data));
                 }
-            } else {
+            } catch {
+                dispatch(logout());
+            } finally {
                 setIsChecking(false);
             }
-        };
-
-        checkSession();
+        } else {
+            setIsChecking(false);
+        }
     }, [dispatch, isAuthenticated]);
+
+    useEffect(() => {
+        checkSession();
+    }, [checkSession]);
 
     if (isChecking) {
         return (
@@ -64,3 +63,5 @@ export const RootLayout = () => {
         </div>
     );
 };
+
+export const RootLayout = memo(RootLayoutComponent);

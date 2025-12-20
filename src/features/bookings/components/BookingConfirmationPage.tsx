@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
@@ -26,7 +26,6 @@ export function BookingConfirmationPage() {
     const [isConfirmed, setIsConfirmed] = useState(false);
     const [isCancelled, setIsCancelled] = useState(false);
 
-    // Guard against direct access without state
     useEffect(() => {
         if (!state?.service || !state?.booking) {
             toast.error("Invalid booking session. Please start again.");
@@ -34,21 +33,15 @@ export function BookingConfirmationPage() {
         }
     }, [state, navigate, id]);
 
-    // Local state for navigation blocking
-    // We only want to block if NOT confirmed yet AND NOT cancelled
     const isSessionActive = !isConfirmed && !isCancelled && !!state?.service;
-
-    // Enable blocker while session is active and not confirmed/cancelled
     useDirtyBlocker(isSessionActive);
 
-    // Handle navigation after cancellation to ensure blocker is disabled first
     useEffect(() => {
         if (isCancelled && state?.service) {
             const targetId = state.service.id || (state.service as any)._id;
             if (targetId) {
                 navigate(`/services/${targetId}`);
             } else {
-                console.error("Missing service ID for navigation", state.service);
                 navigate("/explore");
             }
         }
@@ -65,17 +58,17 @@ export function BookingConfirmationPage() {
         }
     });
 
-    const handleTimeout = () => {
+    const handleTimeout = useCallback(() => {
         if (isConfirmed || isCancelled) return;
         toast.error("Session timed out. Please try booking again.");
         const targetId = state?.service?.id || (state?.service as any)?._id;
         navigate(targetId ? `/services/${targetId}` : "/explore", { replace: true });
-    };
+    }, [isConfirmed, isCancelled, state, navigate]);
 
-    const handleConfirm = () => {
+    const handleConfirm = useCallback(() => {
         if (!state.booking) return;
         confirm();
-    };
+    }, [state, confirm]);
 
     const { mutate: cancel, isPending: isCanceling } = useMutation({
         mutationFn: () => cancelBooking(state.booking.id || state.booking._id!),
@@ -88,19 +81,22 @@ export function BookingConfirmationPage() {
         }
     });
 
-    const handleCancel = () => {
+    const handleCancel = useCallback(() => {
         if (!state.booking) return;
         cancel();
-    };
+    }, [state, cancel]);
 
-    if (!state?.service || !state?.booking) {
-        return null;
-    }
+    const bookingData = useMemo(() => {
+        if (!state?.service || !state?.booking) return null;
+        const startDate = new Date(state.booking.startDate);
+        const endDate = new Date(state.booking.endDate);
+        const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+        return { service: state.service, booking: state.booking, startDate, endDate, totalDays };
+    }, [state]);
 
-    const { service, booking } = state;
-    const startDate = new Date(booking.startDate);
-    const endDate = new Date(booking.endDate);
-    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (!bookingData) return null;
+
+    const { service, booking, startDate, endDate, totalDays } = bookingData;
 
     if (isConfirmed) {
         return (
@@ -109,6 +105,7 @@ export function BookingConfirmationPage() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="w-full max-w-md bg-background rounded-xl shadow-lg border p-8 text-center space-y-6"
+                    style={{ transform: "translateZ(0)" }}
                 >
                     <div className="flex justify-center">
                         <div className="h-16 w-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
@@ -141,8 +138,8 @@ export function BookingConfirmationPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
                 className="w-full max-w-5xl space-y-8"
+                style={{ transform: "translateZ(0)" }}
             >
-                {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Confirm Booking</h1>
@@ -154,14 +151,10 @@ export function BookingConfirmationPage() {
                         <CountdownTimer onTimeout={handleTimeout} />
                     </div>
                 </div>
-
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column: Service Details */}
                     <div className="lg:col-span-2 space-y-6">
                         <ServiceSummaryCard service={service} />
                     </div>
-
-                    {/* Right Column: Booking Summary & Actions */}
                     <div className="space-y-6">
                         <BookingDetailsCard
                             startDate={startDate}
@@ -169,7 +162,6 @@ export function BookingConfirmationPage() {
                             totalDays={totalDays}
                             totalPrice={booking.totalPrice}
                         />
-
                         <div className="flex flex-col gap-3">
                             <Button
                                 size="lg"

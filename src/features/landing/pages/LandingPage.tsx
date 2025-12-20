@@ -6,7 +6,7 @@ export const LandingPage = () => {
         <div className="overflow-x-hidden">
             <Hero />
             <Features />
-            <div className="h-20" /> {/* Spacer */}
+            <div className="h-20" />
         </div>
     );
 };

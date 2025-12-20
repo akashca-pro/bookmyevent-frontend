@@ -1,12 +1,10 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
 import { NeonButton } from "./NeonButton";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils";
-import { useEffect, useState } from "react";
-
-import { useNavigate } from "react-router-dom";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { logout as logoutAction } from "@/store/slices/auth.slice";
@@ -23,64 +21,74 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, User as UserIcon, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
 
-export const Navbar = () => {
+const AUTH_PAGES = ["/login", "/signup", "/admin/login"];
+const DASHBOARD_PATHS = ["/dashboard", "/admin/dashboard"];
+
+const NavbarComponent = () => {
     const [scrolled, setScrolled] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-    // Determine if we should hide navbar elements, e.g. on login page if desired, 
-    // but user wanted redirection from login page if auth. 
-    // The previous code hid navbar on auth pages. Keeping that logic but checking path.
-    const isAuthPage = ["/login", "/signup", "/admin/login"].includes(location.pathname);
-
-    // Normalize role for comparison
+    const isAuthPage = AUTH_PAGES.includes(location.pathname);
     const userRole = user?.role?.toLowerCase();
-    const isAdmin = userRole === 'admin';
+    const isAdmin = userRole === "admin";
+
+    const dashboardPath = useMemo(() => isAdmin ? "/admin/dashboard" : "/dashboard", [isAdmin]);
+    const profilePath = useMemo(() => isAdmin ? "/admin/profile" : "/profile", [isAdmin]);
+
+    const avatarUrl = useMemo(() => 
+        user ? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random` : "",
+        [user]
+    );
 
     useEffect(() => {
-        let timeoutId: ReturnType<typeof setTimeout>;
+        let rafId: number;
+        let lastScrollY = window.scrollY;
 
         const handleScroll = () => {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                setScrolled(window.scrollY > 20);
-            }, 10); // Small delay for performance
+            cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(() => {
+                const currentScrollY = window.scrollY;
+                if ((currentScrollY > 20) !== (lastScrollY > 20)) {
+                    setScrolled(currentScrollY > 20);
+                }
+                lastScrollY = currentScrollY;
+            });
         };
 
-        window.addEventListener("scroll", handleScroll);
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => {
             window.removeEventListener("scroll", handleScroll);
-            clearTimeout(timeoutId);
+            cancelAnimationFrame(rafId);
         };
     }, []);
 
-    const handleLogout = async () => {
+    const handleLogout = useCallback(async () => {
         try {
             await logoutApi();
             dispatch(logoutAction());
             toast.success("Logged out successfully");
             navigate("/login");
-        } catch (error) {
-            console.error("Logout failed:", error);
-            // Even if API fails, we should probably clear client state
+        } catch {
             dispatch(logoutAction());
             navigate("/login");
         }
-    };
+    }, [dispatch, navigate]);
 
     if (isAuthPage) return null;
 
     return (
         <motion.header
             className={cn(
-                "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+                "fixed top-0 left-0 right-0 z-50 will-change-transform",
                 scrolled ? "bg-black/50 backdrop-blur-lg border-b border-white/10 py-4" : "bg-transparent py-6"
             )}
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            style={{ transform: "translateZ(0)" }}
         >
             <div className="container mx-auto px-6 h-full flex items-center justify-between">
                 <Link to="/">
@@ -98,15 +106,10 @@ export const Navbar = () => {
                     </Link>
                     {isAuthenticated && (
                         <Link
-                            to={isAdmin ? "/admin/dashboard" : "/dashboard"}
+                            to={dashboardPath}
                             className={cn(
                                 "text-sm font-medium transition-colors hover:text-white",
-                                [
-                                    "/dashboard",
-                                    "/admin/dashboard"
-                                ].includes(location.pathname)
-                                    ? "text-neon-purple"
-                                    : "text-gray-300"
+                                DASHBOARD_PATHS.includes(location.pathname) ? "text-neon-purple" : "text-gray-300"
                             )}
                         >
                             Dashboard
@@ -119,7 +122,7 @@ export const Navbar = () => {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-10 w-10 rounded-full border border-neon-purple/50">
                                     <Avatar className="h-9 w-9">
-                                        <AvatarImage src={`https://ui-avatars.com/api/?name=${user.name}&background=random`} alt={user.name} />
+                                        <AvatarImage src={avatarUrl} alt={user.name} loading="lazy" />
                                         <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                 </Button>
@@ -133,13 +136,13 @@ export const Navbar = () => {
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-white/10" />
                                 <DropdownMenuItem asChild className="focus:bg-white/10 focus:text-white cursor-pointer">
-                                    <Link to={isAdmin ? "/admin/profile" : "/profile"}>
+                                    <Link to={profilePath}>
                                         <UserIcon className="mr-2 h-4 w-4" />
                                         <span>Profile</span>
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem asChild className="focus:bg-white/10 focus:text-white cursor-pointer">
-                                    <Link to={isAdmin ? "/admin/dashboard" : "/dashboard"}>
+                                    <Link to={dashboardPath}>
                                         <LayoutDashboard className="mr-2 h-4 w-4" />
                                         <span>Dashboard</span>
                                     </Link>
@@ -170,3 +173,5 @@ export const Navbar = () => {
         </motion.header>
     );
 };
+
+export const Navbar = memo(NavbarComponent);

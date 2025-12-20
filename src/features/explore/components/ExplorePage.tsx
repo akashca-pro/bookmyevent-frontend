@@ -3,13 +3,12 @@ import { ServiceFilters } from "./ServiceFilters";
 import { ServiceGrid } from "./ServiceGrid";
 import { PaginationControls } from "./PaginationControls";
 import type { GetAvailableServicesQuery } from "../api/explore";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useAvailableServices } from "../hooks/useAvailableServices";
 
 export default function ExplorePage() {
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // Parse filters from URL
     const filters = useMemo<GetAvailableServicesQuery>(() => ({
         page: parseInt(searchParams.get("page") || "1"),
         limit: parseInt(searchParams.get("limit") || "10"),
@@ -32,20 +31,11 @@ export default function ExplorePage() {
         search: searchParams.get("search") || undefined,
     }), [searchParams]);
 
+    const { data, isLoading, error } = useAvailableServices(filters);
 
-    const {
-        data,
-        isLoading,
-        error,
-    } = useAvailableServices(filters);
-
-
-    const handleFilterChange = (newFilters: Partial<GetAvailableServicesQuery>) => {
+    const handleFilterChange = useCallback((newFilters: Partial<GetAvailableServicesQuery>) => {
         const newParams = new URLSearchParams(searchParams);
-
-        // Reset page to 1 on filter change
         newParams.set("page", "1");
-
         Object.entries(newFilters).forEach(([key, value]) => {
             if (value === undefined || value === null || value === "") {
                 newParams.delete(key);
@@ -57,20 +47,19 @@ export default function ExplorePage() {
                 newParams.set(key, String(value));
             }
         });
-
         setSearchParams(newParams);
-    };
+    }, [searchParams, setSearchParams]);
 
-    const handlePageChange = (page: number) => {
+    const handlePageChange = useCallback((page: number) => {
         const newParams = new URLSearchParams(searchParams);
         newParams.set("page", page.toString());
         setSearchParams(newParams);
         window.scrollTo({ top: 0, behavior: "smooth" });
-    };
+    }, [searchParams, setSearchParams]);
 
-    const handleClearFilters = () => {
+    const handleClearFilters = useCallback(() => {
         setSearchParams(new URLSearchParams());
-    };
+    }, [setSearchParams]);
 
     return (
         <div className="container mx-auto px-4 pt-28 pb-8 min-h-screen">
@@ -81,9 +70,7 @@ export default function ExplorePage() {
                         Discover and book the best services for your event.
                     </p>
                 </div>
-
                 <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Left Sidebar - Filters */}
                     <aside className="w-full lg:w-1/4 shrink-0">
                         <div className="sticky top-4">
                             <ServiceFilters
@@ -93,8 +80,6 @@ export default function ExplorePage() {
                             />
                         </div>
                     </aside>
-
-                    {/* Right Content - Grid */}
                     <main className="flex-1">
                         {error ? (
                             <div className="p-4 rounded-md bg-destructive/10 text-destructive text-center">
@@ -102,10 +87,7 @@ export default function ExplorePage() {
                             </div>
                         ) : (
                             <>
-                                <ServiceGrid
-                                    services={data?.data || []}
-                                    isLoading={isLoading}
-                                />
+                                <ServiceGrid services={data?.data || []} isLoading={isLoading} />
                                 {!isLoading && data && (
                                     <PaginationControls
                                         page={data.page}

@@ -1,4 +1,5 @@
-import { type InputHTMLAttributes, useState } from "react";
+import { memo, useCallback, useState } from "react";
+import type { InputHTMLAttributes } from "react";
 import { cn } from "../../lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
@@ -9,7 +10,7 @@ interface AnimatedInputProps extends InputHTMLAttributes<HTMLInputElement> {
     isPassword?: boolean;
 }
 
-export const AnimatedInput = ({
+const AnimatedInputComponent = ({
     label,
     className,
     error,
@@ -20,13 +21,24 @@ export const AnimatedInput = ({
 }: AnimatedInputProps) => {
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const [, setValue] = useState(props.value || "");
 
-    // Handle controlled vs uncontrolled
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(e.target.value);
-        props.onChange?.(e);
-    };
+    const handleFocus = useCallback(
+        (e: React.FocusEvent<HTMLInputElement>) => {
+            setIsFocused(true);
+            props.onFocus?.(e);
+        },
+        [props.onFocus]
+    );
+
+    const handleBlur = useCallback(
+        (e: React.FocusEvent<HTMLInputElement>) => {
+            setIsFocused(false);
+            props.onBlur?.(e);
+        },
+        [props.onBlur]
+    );
+
+    const togglePassword = useCallback(() => setShowPassword((prev) => !prev), []);
 
     const currentType = isPassword ? (showPassword ? "text" : "password") : type;
 
@@ -42,16 +54,8 @@ export const AnimatedInput = ({
                         className
                     )}
                     placeholder={label}
-                    onFocus={(e) => {
-                        setIsFocused(true);
-                        props.onFocus?.(e);
-                    }}
-                    onBlur={(e) => {
-                        setIsFocused(false);
-                        props.onBlur?.(e);
-                    }}
-                    onChange={handleChange}
-                    value={props.value}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     {...props}
                 />
                 <label
@@ -64,18 +68,16 @@ export const AnimatedInput = ({
                 >
                     {label}
                 </label>
-
                 {isPassword && (
                     <button
                         type="button"
-                        onClick={() => setShowPassword(!showPassword)}
+                        onClick={togglePassword}
                         className="absolute right-3 top-3.5 text-gray-400 hover:text-white transition-colors"
                     >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                 )}
             </div>
-
             <AnimatePresence>
                 {error && (
                     <motion.p
@@ -91,3 +93,5 @@ export const AnimatedInput = ({
         </div>
     );
 };
+
+export const AnimatedInput = memo(AnimatedInputComponent);
