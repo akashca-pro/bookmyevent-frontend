@@ -5,9 +5,8 @@ import { NeonButton } from "./NeonButton";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils";
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { destroyCookie, parseCookies } from "nookies";
 
+import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { logout as logoutAction } from "@/store/slices/auth.slice";
@@ -22,12 +21,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, User as UserIcon, LayoutDashboard } from "lucide-react";
+import { toast } from "sonner";
 
 export const Navbar = () => {
     const [scrolled, setScrolled] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const queryClient = useQueryClient();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
     // Determine if we should hide navbar elements, e.g. on login page if desired, 
@@ -57,30 +57,16 @@ export const Navbar = () => {
     }, []);
 
     const handleLogout = async () => {
-        const clearAllData = () => {
-            const cookies = parseCookies();
-            const domain = window.location.hostname;
-            
-            Object.keys(cookies).forEach((cookieName) => {
-                destroyCookie(null, cookieName, { path: '/' });
-                destroyCookie(null, cookieName, { path: '/', domain: domain });
-                destroyCookie(null, cookieName, { path: '/', domain: `.${domain}` });
-                destroyCookie(null, cookieName);
-            });
-
-            localStorage.clear();
-            sessionStorage.clear();
-        };
-
         try {
             await logoutApi();
+            dispatch(logoutAction());
+            toast.success("Logged out successfully");
+            navigate("/login");
         } catch (error) {
             console.error("Logout failed:", error);
-        } finally {
-            clearAllData();
+            // Even if API fails, we should probably clear client state
             dispatch(logoutAction());
-            queryClient.clear();
-            window.location.href = "/login";
+            navigate("/login");
         }
     };
 
