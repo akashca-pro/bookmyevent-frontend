@@ -14,7 +14,7 @@ export function ServicesTab() {
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
     const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const limit = parseInt(searchParams.get("limit") || "6", 6);
 
     const { data, isLoading } = useAdminServices({
         page,
