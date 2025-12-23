@@ -11,7 +11,7 @@ export default function ExplorePage() {
 
     const filters = useMemo<GetAvailableServicesQuery>(() => ({
         page: parseInt(searchParams.get("page") || "1"),
-        limit: parseInt(searchParams.get("limit") || "10"),
+        limit: parseInt(searchParams.get("limit") || "9"),
         startDate: searchParams.get("startDate")
             ? new Date(searchParams.get("startDate")!)
             : new Date(),
