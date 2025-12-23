@@ -5,26 +5,26 @@ import { ShieldCheck, Zap, Globe, Clock } from "lucide-react";
 const features = [
     {
         icon: Zap,
-        title: "Instant Booking",
-        description: "Real-time availability updates and instant confirmation for all services.",
+        title: "Smart Discovery",
+        description: "Browse event services by category, price range, and location with powerful search and filters.",
         color: "text-neon-blue",
     },
     {
-        icon: ShieldCheck,
-        title: "Verified Partners",
-        description: "Every service provider is vetted through our rigorous 3-step verification process.",
+        icon: Clock,
+        title: "Real-Time Availability",
+        description: "Check service availability instantly with our live calendar system before you book.",
         color: "text-neon-green",
     },
     {
-        icon: Globe,
-        title: "Global Network",
-        description: "Access a worldwide network of premium event professionals.",
+        icon: ShieldCheck,
+        title: "Secure Booking",
+        description: "Reserve services with a 5-minute confirmation window to ensure your preferred slot.",
         color: "text-purple-400",
     },
     {
-        icon: Clock,
-        title: "24/7 Support",
-        description: "Our dedicated concierge team is available round the clock for your needs.",
+        icon: Globe,
+        title: "Booking Management",
+        description: "Track, manage, and view all your bookings in one simple and intuitive dashboard.",
         color: "text-pink-400",
     },
 ];

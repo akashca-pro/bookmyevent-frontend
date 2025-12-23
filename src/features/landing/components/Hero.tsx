@@ -20,19 +20,19 @@ export const Hero = () => {
                         className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-neon-blue text-sm mb-6"
                     >
                         <Sparkles size={14} />
-                        <span>The Future of Event Booking</span>
+                        <span>Smart Event Service Booking</span>
                     </motion.div>
 
                     <h1 className="text-5xl lg:text-7xl font-bold leading-tight mb-6 text-white">
-                        Experience <br />
+                        Book Your <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-purple-500 to-neon-purple animate-gradient">
-                            Zero Gravity
+                            Perfect Event
                         </span>{" "}
                         Services
                     </h1>
 
                     <p className="text-lg text-gray-400 mb-8 max-w-lg leading-relaxed">
-                        Discover a curated universe of premium event services. From holographic venues to AI-assisted planning, we bring the future to your events today.
+                        Discover the best event services in your area. Filter by category, price, and location — then book instantly with real-time availability.
                     </p>
 
                     <div className="flex flex-wrap gap-4">
