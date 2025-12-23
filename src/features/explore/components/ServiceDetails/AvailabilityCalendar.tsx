@@ -3,12 +3,13 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getMonthlyAvailability, getServiceById } from "../../api/explore";
 import { reserveBooking } from "@/features/bookings/api/bookings";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAppSelector } from "@/hooks/useAppSelector";
 
 interface AvailabilityCalendarProps {
     serviceId: string;
@@ -16,6 +17,7 @@ interface AvailabilityCalendarProps {
 
 export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
     const navigate = useNavigate();
+    const { isAuthenticated } = useAppSelector((state) => state.auth);
     const today = new Date();
     const [currentDate, setCurrentDate] = useState(today);
     const [startDate, setStartDate] = useState<Date | null>(null);
@@ -84,6 +86,33 @@ export function AvailabilityCalendar({ serviceId }: AvailabilityCalendarProps) {
             setError("Please select a date range");
             return;
         }
+
+        // Check if user is authenticated
+        if (!isAuthenticated) {
+            toast.custom((t) => (
+                <div className="flex items-center gap-4 bg-background border border-border rounded-lg p-4 shadow-lg">
+                    <div className="flex-1">
+                        <p className="font-medium text-foreground">Login Required</p>
+                        <p className="text-sm text-muted-foreground">Please login to book this service</p>
+                    </div>
+                    <Button
+                        size="sm"
+                        onClick={() => {
+                            toast.dismiss(t);
+                            navigate("/login");
+                        }}
+                        className="gap-2"
+                    >
+                        <LogIn className="h-4 w-4" />
+                        Login to Book
+                    </Button>
+                </div>
+            ), {
+                duration: 5000,
+            });
+            return;
+        }
+
         book({ startDate, endDate });
     };
 
